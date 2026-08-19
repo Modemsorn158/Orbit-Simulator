@@ -1,25 +1,8 @@
 from math import sqrt
 import matplotlib.pyplot as plt
 
-# MILESTONE 1 - Physical Model Establishment
-
-# TASK 1
-G = 6.6743*(10**-11) # m^3/(kg*s^2)
 mu_Earth = 3.986*(10**14) # m^3/s^2
-m_Earth = 5.972*(10**24) # kg
-r_Earth = 6.371*(10**6) # m
 
-print("μ : "+str(G*m_Earth)+" m^3/s^2")
-print("a : "+str(mu_Earth/(r_Earth**2))+" m/s^2")
-
-# TASK 2
-print("Vc : "+str(sqrt(mu_Earth/r_Earth)))
-
-# MILESTONE 2 - Positon Vectors & Gravity
-
-print("="*20)
-
-# TASK 1
 def gravitational_acceleration(x, y):
     r = sqrt((x**2)+(y**2))
 
@@ -28,14 +11,6 @@ def gravitational_acceleration(x, y):
 
     return(ax, ay)
 
-print(gravitational_acceleration(3, 4))
-print(gravitational_acceleration(7000000, 0))
-
-# MILESTONE 3 - Numerical Integration
-
-print("="*20)
-
-# TASK 1
 def euler_step(x, y, vx, vy, dt):
     ax, ay = gravitational_acceleration(x, y)
 
@@ -49,7 +24,6 @@ def euler_step(x, y, vx, vy, dt):
 
 print(euler_step(7000000, 0, 0, 7500, 1))
 
-# TASK 2 & 3 & 4
 def specific_energy(x, y, vx, vy):
     r = sqrt((x**2)+(y**2))
     v_squared = (vx**2)+(vy**2)

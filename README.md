@@ -1,7 +1,11 @@
-# Orbital Lab
+# Orbital Simulation
 
 ## Overview
 This is a project exploring the physics behind orbital mechanics.
+| .py file            |                                 Purpose |
+| ------------------- | --------------------------------------: |
+| Physics.py          | Verification of equations and constants |
+| Validation.py       | Validation of simulation systems        |
 
 ## Numerical Method
 This simulator uses semi-implicit Euler integration, reducing numerical drift in specific orbital energy after the tested simulation duration.
@@ -26,5 +30,5 @@ A circular orbit with a radius of 7,000 km was simulated for 9,000 seconds using
 - Memory requirement depends on simulation demands.
 
 ## Running the simulation
-1. Download `Main.py`
+1. Download `Validation.py`
 2. Either run the program via command line or through your supported IDE of choice.
