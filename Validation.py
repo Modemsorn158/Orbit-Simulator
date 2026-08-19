@@ -1,59 +1,10 @@
+from Physics import gravitational_acceleration, euler_step, specific_energy, specific_angular_momentum, simulate
+from Physics import mu_Earth, r_Earth, r0, vc, ve
 from math import sqrt
+import random as random
 import matplotlib.pyplot as plt
 
-mu_Earth = 3.986*(10**14) # m^3/s^2
-
-def gravitational_acceleration(x, y):
-    r = sqrt((x**2)+(y**2))
-
-    ax = -((mu_Earth*x)/(r**3))
-    ay = -((mu_Earth*y)/(r**3))
-
-    return(ax, ay)
-
-def euler_step(x, y, vx, vy, dt):
-    ax, ay = gravitational_acceleration(x, y)
-
-    new_vx = vx+ax*dt
-    new_vy = vy+ay*dt
-
-    new_x = x+new_vx*dt
-    new_y = y+new_vy*dt
-
-    return(new_x, new_y, new_vx, new_vy)
-
 print(euler_step(7000000, 0, 0, 7500, 1))
-
-def specific_energy(x, y, vx, vy):
-    r = sqrt((x**2)+(y**2))
-    v_squared = (vx**2)+(vy**2)
-    e = (v_squared/2)-(mu_Earth/r)
-
-    return e
-
-def specific_angular_momentum(x, y, vx, vy):
-    h = (x*vy)-(y*vx)
-    
-    return h
-
-def simulate(x, y, vx, vy, dt, steps):
-    positions = []
-    energies = []
-    angular_momenta = []
-
-    for i in range(steps):
-        e = specific_energy(x, y, vx, vy)
-        energies.append(e)
-        h = specific_angular_momentum(x, y, vx, vy)
-        angular_momenta.append(h)
-        x, y, vx, vy = euler_step(x, y, vx, vy, dt)
-        positions.append((x, y))
-    e = specific_energy(x, y, vx, vy)
-    energies.append(e)
-    h = specific_angular_momentum(x, y, vx, vy)
-    angular_momenta.append(h)
-
-    return positions, energies, angular_momenta
 
 def show_trajectory(positions, test_number):
     x, y = zip(*positions)
@@ -77,13 +28,10 @@ def show_energy_graph(energies, dt, test_number):
 
     plt.show()
 
-r0 = 7000000
-vc = sqrt(mu_Earth/r0)
-
-def run_validation(test_number, dt, steps):
+def run_validation(test_number, initial_velocity, dt, steps):
     print("TEST UNIT "+str(test_number)+" : dt="+str(dt)+" steps="+str(steps))
 
-    result, energies, angular_momenta = simulate(7000000, 0, 0, vc, dt, steps)    
+    result, energies, angular_momenta = simulate(7000000, 0, 0, initial_velocity, dt, steps)    
 
     e1 = energies[0]
     en = energies[-1]
@@ -94,7 +42,7 @@ def run_validation(test_number, dt, steps):
     print("Energy difference : "+str(de))
     print("Energy change percentage : "+str(pe)+"%")
 
-    ha = r0*vc
+    ha = r0*initial_velocity
     h1 = angular_momenta[0]
     hn = angular_momenta[-1]    
     dh = abs(hn-h1)
@@ -105,11 +53,40 @@ def run_validation(test_number, dt, steps):
     print("Angular momentum difference : "+str(dh))
     print("Angular momentum change percentage : "+str(ph)+"%")
 
-    show_trajectory(result, test_number)
-    show_energy_graph(energies, dt, test_number)
+    #show_trajectory(result, test_number)
+    #show_energy_graph(energies, dt, test_number)
     print("\n")
 
-run_validation(1, 1, 9000)
-run_validation(2, 5, 1800)
-run_validation(3, 10, 900)
-run_validation(4, 30, 300)
+    return result
+
+# Forward x Semi, Energy
+#run_validation(1, vc, 1, 9000)
+#run_validation(2, vc, 5, 1800)
+#run_validation(3, vc, 10, 900)
+#run_validation(4, vc, 30, 300)
+
+# vc Test
+#run_validation(1, 0.9*vc, 1, 9000)
+#run_validation(2, vc, 1, 9000)
+#run_validation(3, 1.1*vc, 1, 9000)
+
+# ve Test
+def ve_Test():
+    result1 = run_validation(1, 0.99*ve, 1, 9000)
+    result2 = run_validation(2, ve, 1, 9000)
+    result3 = run_validation(3, 1.01*ve, 1, 9000)
+
+    x1, y1 = zip(*result1)
+    x2, y2 = zip(*result2)
+    x3, y3 = zip(*result3)
+
+    fig, ax = plt.subplots()
+    ax.scatter(x1, y1, s=1, color='blue', label='0.99ve')
+    ax.scatter(x2, y2, s=1, color='purple', label='ve')
+    ax.scatter(x3, y3, s=1, color='red', label='1.01ve')
+    ax.set_aspect('equal')
+    ax.set_title("0.99ve, ve, 1.01ve Orbit Comparison")
+
+    plt.show()
+
+ve_Test()

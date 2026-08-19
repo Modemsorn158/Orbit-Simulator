@@ -22,3 +22,51 @@ def gravitational_acceleration(x, y):
 
 print(gravitational_acceleration(3, 4))
 print(gravitational_acceleration(7000000, 0))
+
+def euler_step(x, y, vx, vy, dt):
+    ax, ay = gravitational_acceleration(x, y)
+
+    new_vx = vx+ax*dt
+    new_vy = vy+ay*dt
+
+    new_x = x+new_vx*dt
+    new_y = y+new_vy*dt
+
+    return(new_x, new_y, new_vx, new_vy)
+
+def specific_energy(x, y, vx, vy):
+    r = sqrt((x**2)+(y**2))
+    v_squared = (vx**2)+(vy**2)
+    e = (v_squared/2)-(mu_Earth/r)
+
+    return e
+
+def specific_angular_momentum(x, y, vx, vy):
+    h = (x*vy)-(y*vx)
+    
+    return h
+
+def simulate(x, y, vx, vy, dt, steps):
+    positions = []
+    energies = []
+    angular_momenta = []
+
+    for i in range(steps):
+        e = specific_energy(x, y, vx, vy)
+        energies.append(e)
+        h = specific_angular_momentum(x, y, vx, vy)
+        angular_momenta.append(h)
+        x, y, vx, vy = euler_step(x, y, vx, vy, dt)
+        positions.append((x, y))
+    e = specific_energy(x, y, vx, vy)
+    energies.append(e)
+    h = specific_angular_momentum(x, y, vx, vy)
+    angular_momenta.append(h)
+
+    return positions, energies, angular_momenta
+
+r0 = 7000000
+vc = sqrt(mu_Earth/r0)
+ve = sqrt((2*mu_Earth)/r0)
+
+print("="*20)
