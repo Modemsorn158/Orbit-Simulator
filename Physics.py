@@ -1,4 +1,4 @@
-from math import sqrt, inf, pi, acos, degrees, atan2
+from math import sqrt, inf, pi, acos, degrees, atan2, sin, cos
 
 G = 6.6743*(10**-11) # m^3/(kg*s^2)
 mu_Earth = 3.986*(10**14) # m^3/s^2
@@ -85,6 +85,11 @@ def orbital_period(x, y, vx, vy):
 
     return T
 
+def orbital_period_SMA(a):
+    T = 2*pi*sqrt(max(0, (a**3)/mu_Earth))
+
+    return T
+
 def eccentricity_vector(x, y, vx, vy):
     h = specific_angular_momentum(x, y, vx, vy)
     r = sqrt((x**2)+(y**2))
@@ -135,6 +140,34 @@ def true_anomaly(x, y, vx, vy):
         angle = (2*pi)-angle
 
     return degrees(angle)
+
+def mean_motion(a):
+    n = sqrt(mu_Earth/(a**3))
+
+    return n
+
+def mean_anomaly(t, n):
+    M = n*t
+
+    return M%(2*pi)
+
+def eccentric_anomaly(M, e):
+    E = M
+
+    for i in range(8):
+        E = E-((E-(e*sin(E))-M)/(1-(e*cos(E))))
+    v = atan2((sqrt(1-(e**2))*sin(E)), (cos(E)-e))
+
+    return E, v
+
+def mean_anomaly_epoch(v, e):
+    E = atan2((sqrt(1-(e**2))*sin(v)), (e+cos(v)))
+    if E < 0:
+        E += 2*pi
+
+    M0 = E-(e*sin(E))
+
+    return M0%(2*pi)
 
 def simulate(x, y, vx, vy, dt, steps, record):
     # record = True > retains full history, leave false for initial-final only

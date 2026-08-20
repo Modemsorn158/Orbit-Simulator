@@ -1,6 +1,6 @@
-from Physics import gravitational_acceleration, euler_step, specific_energy, specific_angular_momentum, classify_orbit, simulate
+from Physics import gravitational_acceleration, euler_step, specific_energy, specific_angular_momentum, orbital_period_SMA, classify_orbit, mean_motion, mean_anomaly, eccentric_anomaly, mean_anomaly_epoch, simulate
 from Physics import mu_Earth, r_Earth, r0, vc, ve
-from math import sqrt
+from math import sqrt, pi
 import random
 import matplotlib.pyplot as plt
 
@@ -161,6 +161,17 @@ def ve_Test(scales, dt, steps, record):
         
         plt.show()
 
+# E Test
+def E_Test(a, e, t):
+    n = mean_motion(a)
+    M = mean_anomaly(t, n)
+    E, v = eccentric_anomaly(M, e)
+
+    print(("=")*5+" Anomaly "+("=")*5)
+    print("Mean anomaly : "+str(M))
+    print("Eccentric anomaly : "+str(E))
+    print("True anomaly : "+str(v))
+
 if __name__ == "__main__":
     pass
 
@@ -181,5 +192,21 @@ if __name__ == "__main__":
     #run_validation(1, 7000000, 0, 0, 0.9*vc, 1, 9000, False)
     #run_validation(2, 0, 7000000, -0.9*vc, 0, 1, 9000, False)
     #run_validation(3, -7000000, 0, 0, -0.9*vc, 1, 9000, False)
+
+    # E Test
+    #T = orbital_period_SMA(7000000)
+    #E_Test(7000000, 0.19, 0)
+    #E_Test(7000000, 0.19, T/2)
+    #E_Test(7000000, 0.19, T)
+
+    # M0 Test
+    #print(mean_anomaly_epoch(0, 0))
+    #print(mean_anomaly_epoch(pi, 0))
+    #print(mean_anomaly_epoch(2*pi, 0))
+    #print(mean_anomaly_epoch(0, 0.19))
+    #print(mean_anomaly_epoch(pi/2, 0.19))
+    #print(mean_anomaly_epoch(pi, 0.19))
+    #print(mean_anomaly_epoch(3*pi/2, 0.19))
+    #print(mean_anomaly_epoch(2*pi, 0.19))
 
     #ve_Test([0.99, 1, 1.01], 1, 750000, False)
