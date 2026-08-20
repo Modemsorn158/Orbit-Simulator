@@ -1,7 +1,7 @@
 from Physics import gravitational_acceleration, euler_step, specific_energy, specific_angular_momentum, classify_orbit, simulate
 from Physics import mu_Earth, r_Earth, r0, vc, ve
 from math import sqrt
-import random as random
+import random
 import matplotlib.pyplot as plt
 
 def show_trajectory(positions, test_number):
@@ -29,7 +29,7 @@ def show_energy_graph(energies, dt, test_number):
 def run_validation(test_number, initial_velocity, dt, steps):
     print("TEST UNIT "+str(test_number)+" : dt="+str(dt)+" steps="+str(steps))
 
-    result, energies, angular_momenta, eccentricities, orbit_type = simulate(7000000, 0, 0, initial_velocity, dt, steps)    
+    result, energies, angular_momenta, eccentricities, orbit_type, axises, rps, ras = simulate(7000000, 0, 0, initial_velocity, dt, steps)    
 
     se1 = energies[0]
     sen = energies[-1]
@@ -68,6 +68,39 @@ def run_validation(test_number, initial_velocity, dt, steps):
     print("Eccentricity change percentage : "+str(pe)+"%")
     print("Orbit type : "+orbit_type)
 
+    a1 = axises[0]
+    an = axises[-1]
+    da = abs(an-a1)
+    if (a1 < (10**-20)) and (a1 > -(10**-20)):
+        pa = 0
+    else:
+        pa = ((an-a1)/abs(a1))*100
+    print(("=")*5+" Semi-Major Axis "+("=")*5)
+    print("Initial SMA : "+str(a1))
+    print("Final SMA : "+str(an))
+    print("SMA difference : "+str(da))
+    print("SMA change percentage : "+str(pa)+"%")
+
+    rp1 = rps[0]
+    rpn = rps[-1]
+    drp = abs(rpn-rp1)
+    prp = ((rpn-rp1)/abs(rp1))*100
+    print(("=")*5+" Periapsis "+("=")*5)
+    print("Initial periapsis : "+str(rp1))
+    print("Final periapsis : "+str(rpn))
+    print("Periapsis difference : "+str(drp))
+    print("Periapsis change percentage : "+str(prp)+"%")
+
+    ra1 = ras[0]
+    ran = ras[-1]
+    dra = abs(ran-ra1)
+    pra = ((ran-ra1)/abs(ra1))*100
+    print(("=")*5+" Apoapsis "+("=")*5)
+    print("Initial apoapsis : "+str(ra1))
+    print("Final apoapsis : "+str(ran))
+    print("Apoapsis difference : "+str(dra))
+    print("Apoapsis change percentage : "+str(pra)+"%")
+
     #show_trajectory(result, test_number)
     #show_energy_graph(energies, dt, test_number)
     print("\n")
@@ -80,14 +113,14 @@ def ve_Test(scales, dt, steps):
     for i, scale in enumerate(scales):
         results.append(run_validation(i+1, scale*ve, dt, steps))
 
-    fig, ax = plt.subplots()
-    for i in results:
-        x, y = zip(*i)
-        ax.scatter(x, y, s=1)
-    ax.set_aspect('equal')
-    ax.set_title("Orbit Comparison")
-
-    plt.show()
+    #fig, ax = plt.subplots()
+    #for i in results:
+    #    x, y = zip(*i)
+    #    ax.scatter(x, y, s=1)
+    #ax.set_aspect('equal')
+    #ax.set_title("Orbit Comparison")
+    #
+    #plt.show()
 
 if __name__ == "__main__":
     pass

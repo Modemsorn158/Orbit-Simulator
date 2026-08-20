@@ -1,4 +1,4 @@
-from math import sqrt
+from math import sqrt, inf
 
 G = 6.6743*(10**-11) # m^3/(kg*s^2)
 mu_Earth = 3.986*(10**14) # m^3/s^2
@@ -59,11 +59,33 @@ def classify_orbit(x, y, vx, vy):
 
     return orbit_type
 
+def semi_major_axis(x, y, vx, vy):
+    e = specific_energy(x, y, vx, vy)
+    
+    if abs(e) < (10**-6):
+        a = inf
+    else:
+        a = -(mu_Earth/(2*e))
+
+    return a
+
+def calculate_ap(x, y, vx, vy):
+    e = eccentricity(x, y, vx, vy)
+    a = semi_major_axis(x, y, vx, vy)
+
+    rp = a*(1-e)
+    ra = a*(1+e)
+
+    return rp, ra
+
 def simulate(x, y, vx, vy, dt, steps):
     positions = []
     energies = []
     angular_momenta = []
     eccentricities = []
+    axises = []
+    rps = []
+    ras = []
 
     for i in range(steps):
         se = specific_energy(x, y, vx, vy)
@@ -72,6 +94,11 @@ def simulate(x, y, vx, vy, dt, steps):
         angular_momenta.append(h)
         e = eccentricity(x, y, vx, vy)
         eccentricities.append(e)
+        a = semi_major_axis(x, y, vx, vy)
+        axises.append(a)
+        rp, ra = calculate_ap(x, y, vx, vy)
+        rps.append(rp)
+        ras.append(ra)
         x, y, vx, vy = euler_step(x, y, vx, vy, dt)
         positions.append((x, y))
     se = specific_energy(x, y, vx, vy)
@@ -80,8 +107,13 @@ def simulate(x, y, vx, vy, dt, steps):
     angular_momenta.append(h)
     e = eccentricity(x, y, vx, vy)
     eccentricities.append(e)
+    a = semi_major_axis(x, y, vx, vy)
+    axises.append(a)
+    rp, ra = calculate_ap(x, y, vx, vy)
+    rps.append(rp)
+    ras.append(ra)
 
-    return positions, energies, angular_momenta, eccentricities, classify_orbit(x, y, vx, vy)
+    return positions, energies, angular_momenta, eccentricities, classify_orbit(x, y, vx, vy), axises, rps, ras
 
 r0 = 7000000
 vc = sqrt(mu_Earth/r0)
