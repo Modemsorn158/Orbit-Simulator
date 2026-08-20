@@ -26,10 +26,22 @@ def show_energy_graph(energies, dt, test_number):
 
     plt.show()
 
-def run_validation(test_number, initial_velocity, dt, steps):
+def show_anomaly_graph(anomalies, dt, test_number):
+    x = [i*dt for i in range(len(anomalies))]
+    y = anomalies
+
+    fig, ax = plt.subplots()
+    ax.plot(x, y, linewidth=2)
+    ax.set_title("Test Number "+str(test_number))
+    plt.xlabel("Time (s)")
+    plt.ylabel("True anomaly (Degrees)")
+
+    plt.show()
+
+def run_validation(test_number, x, y, vx, vy, dt, steps, record):
     print("TEST UNIT "+str(test_number)+" : dt="+str(dt)+" steps="+str(steps))
 
-    result, energies, angular_momenta, eccentricities, orbit_type, axises, rps, ras = simulate(7000000, 0, 0, initial_velocity, dt, steps)    
+    result, energies, angular_momenta, eccentricities, orbit_type, axises, rps, ras, orbital_period, anomalies, omegas = simulate(x, y, vx, vy, dt, steps, record)    
 
     se1 = energies[0]
     sen = energies[-1]
@@ -42,7 +54,7 @@ def run_validation(test_number, initial_velocity, dt, steps):
     if not abs(se1) < 10**-5:
         print("Energy change percentage : "+str(pse)+"%")
 
-    ha = r0*initial_velocity
+    ha = (x*vy)-(y*vx)
     h1 = angular_momenta[0]
     hn = angular_momenta[-1]    
     dh = abs(hn-h1)
@@ -66,7 +78,6 @@ def run_validation(test_number, initial_velocity, dt, steps):
     print("Final eccentricity : "+str(en))
     print("Eccentricity difference : "+str(de))
     print("Eccentricity change percentage : "+str(pe)+"%")
-    print("Orbit type : "+orbit_type)
 
     a1 = axises[0]
     an = axises[-1]
@@ -76,10 +87,13 @@ def run_validation(test_number, initial_velocity, dt, steps):
     else:
         pa = ((an-a1)/abs(a1))*100
     print(("=")*5+" Semi-Major Axis "+("=")*5)
-    print("Initial SMA : "+str(a1))
-    print("Final SMA : "+str(an))
-    print("SMA difference : "+str(da))
-    print("SMA change percentage : "+str(pa)+"%")
+    if (orbit_type == "Circular") or (orbit_type == "Elliptical"):
+        print("Initial SMA : "+str(a1))
+        print("Final SMA : "+str(an))
+        print("SMA difference : "+str(da))
+        print("SMA change percentage : "+str(pa)+"%")
+    else:
+        print("SMA : Undefined")
 
     rp1 = rps[0]
     rpn = rps[-1]
@@ -96,31 +110,56 @@ def run_validation(test_number, initial_velocity, dt, steps):
     dra = abs(ran-ra1)
     pra = ((ran-ra1)/abs(ra1))*100
     print(("=")*5+" Apoapsis "+("=")*5)
-    print("Initial apoapsis : "+str(ra1))
-    print("Final apoapsis : "+str(ran))
-    print("Apoapsis difference : "+str(dra))
-    print("Apoapsis change percentage : "+str(pra)+"%")
+    if (orbit_type == "Circular") or (orbit_type == "Elliptical"):
+        print("Initial apoapsis : "+str(ra1))
+        print("Final apoapsis : "+str(ran))
+        print("Apoapsis difference : "+str(dra))
+        print("Apoapsis change percentage : "+str(pra)+"%")
+    else:
+        print("Apoapsis : Undefined")
 
-    #show_trajectory(result, test_number)
-    #show_energy_graph(energies, dt, test_number)
+    w1 = omegas[0]
+    wn = omegas[-1]
+    dw = abs(wn-w1)
+    if abs(w1) > (10**-2):
+        pw = ((wn-w1)/abs(w1))*100
+    else:
+        pw = 0
+    print(("=")*5+" Orbit "+("=")*5)
+    print("Orbit type : "+orbit_type)
+    print("Initial argument of periapsis : "+str(w1))
+    print("Final argument of periapsis : "+str(wn))
+    print("Argument of periapsis difference : "+str(dw))
+    print("Argument of periapsis change percentage : "+str(pw)+"%")
+    if (orbit_type == "Circular") or (orbit_type == "Elliptical"):
+        print("Orbital period : "+str(orbital_period))
+    else:
+        print("Orbital period : Undefined")
+
+    if record == True:
+        show_trajectory(result, test_number)
+        show_energy_graph(energies, dt, test_number)
+        if (orbit_type == "Circular") or (orbit_type == "Elliptical"):
+            show_anomaly_graph(anomalies, dt, test_number)
     print("\n")
 
     return result
 
 # ve Test
-def ve_Test(scales, dt, steps):
+def ve_Test(scales, dt, steps, record):
     results = []
     for i, scale in enumerate(scales):
-        results.append(run_validation(i+1, scale*ve, dt, steps))
+        results.append(run_validation(i+1, 7000000, 0, 0, scale*ve, dt, steps, record))
 
-    #fig, ax = plt.subplots()
-    #for i in results:
-    #    x, y = zip(*i)
-    #    ax.scatter(x, y, s=1)
-    #ax.set_aspect('equal')
-    #ax.set_title("Orbit Comparison")
-    #
-    #plt.show()
+    if record == True:
+        fig, ax = plt.subplots()
+        for i in results:
+            x, y = zip(*i)
+            ax.scatter(x, y, s=1)
+        ax.set_aspect('equal')
+        ax.set_title("Orbit Comparison")
+        
+        plt.show()
 
 if __name__ == "__main__":
     pass
@@ -128,14 +167,19 @@ if __name__ == "__main__":
     #print(euler_step(7000000, 0, 0, 7500, 1))
 
     # Forward x Semi, Energy
-    #run_validation(1, vc, 1, 9000)
-    #run_validation(2, vc, 5, 1800)
-    #run_validation(3, vc, 10, 900)
-    #run_validation(4, vc, 30, 300)
+    #run_validation(1, 7000000, 0, 0, vc, 1, 9000, False)
+    #run_validation(2, 7000000, 0, 0, vc, 5, 1800, False)
+    #run_validation(3, 7000000, 0, 0, vc, 10, 900, False)
+    #run_validation(4, 7000000, 0, 0, vc, 30, 300, False)
 
     # vc Test
-    run_validation(1, 0.9*vc, 1, 9000)
-    run_validation(2, vc, 1, 9000)
-    run_validation(3, 1.1*vc, 1, 9000)
+    #run_validation(1, 7000000, 0, 0, 0.9*vc, 1, 9000, False)
+    #run_validation(2, 7000000, 0, 0, vc, 1, 9000, False)
+    #run_validation(3, 7000000, 0, 0, 1.1*vc, 1, 9000, False)
 
-    ve_Test([0.99, 1, 1.01], 1, 750000)
+    # aop Test
+    #run_validation(1, 7000000, 0, 0, 0.9*vc, 1, 9000, False)
+    #run_validation(2, 0, 7000000, -0.9*vc, 0, 1, 9000, False)
+    #run_validation(3, -7000000, 0, 0, -0.9*vc, 1, 9000, False)
+
+    #ve_Test([0.99, 1, 1.01], 1, 750000, False)

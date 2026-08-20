@@ -1,4 +1,4 @@
-from math import sqrt, inf
+from math import sqrt, inf, pi, acos, degrees, atan2
 
 G = 6.6743*(10**-11) # m^3/(kg*s^2)
 mu_Earth = 3.986*(10**14) # m^3/s^2
@@ -78,7 +78,66 @@ def calculate_ap(x, y, vx, vy):
 
     return rp, ra
 
-def simulate(x, y, vx, vy, dt, steps):
+def orbital_period(x, y, vx, vy):
+    a = semi_major_axis(x, y, vx, vy)
+
+    T = 2*pi*sqrt(max(0, (a**3)/mu_Earth))
+
+    return T
+
+def eccentricity_vector(x, y, vx, vy):
+    h = specific_angular_momentum(x, y, vx, vy)
+    r = sqrt((x**2)+(y**2))
+
+    ex = (x/r)-((vy*h)/mu_Earth)
+    ey = (y/r)+((vx*h)/mu_Earth)
+
+    return ex, ey
+
+def radial_velocity(x, y, vx, vy):
+    r = sqrt((x**2)+(y**2))
+
+    vr = ((x*vx)+(y*vy))/r
+
+    return vr
+
+def argument_of_periapsis(x, y, vx, vy):
+    ex, ey = eccentricity_vector(x, y, vx, vy)
+
+    omega = degrees(atan2(ey, ex))
+    if omega < 0:
+        omega += 360
+
+    return omega
+
+def true_anomaly(x, y, vx, vy):
+    r = sqrt((x**2)+(y**2))
+    e = eccentricity(x, y, vx, vy)
+    ex, ey = eccentricity_vector(x, y, vx, vy)
+    vr = radial_velocity(x, y, vx, vy)
+
+    # Circular orbit
+    if e < (10**-2):
+        angle = atan2(y, x)
+        if angle < 0:
+            angle += 2*pi
+        return degrees(angle)
+
+    # Elliptical orbit
+    if abs(e) > (10**-6):
+        av = ((ex*x)+(ey*y))/(e*r)
+        av = max(-1, min(1, av))
+        angle = acos(av)
+    else:
+        angle = 0
+    
+    if vr < 0:
+        angle = (2*pi)-angle
+
+    return degrees(angle)
+
+def simulate(x, y, vx, vy, dt, steps, record):
+    # record = True > retains full history, leave false for initial-final only
     positions = []
     energies = []
     angular_momenta = []
@@ -86,8 +145,10 @@ def simulate(x, y, vx, vy, dt, steps):
     axises = []
     rps = []
     ras = []
+    anomalies = []
+    omegas = []
 
-    for i in range(steps):
+    def record_data():
         se = specific_energy(x, y, vx, vy)
         energies.append(se)
         h = specific_angular_momentum(x, y, vx, vy)
@@ -99,21 +160,20 @@ def simulate(x, y, vx, vy, dt, steps):
         rp, ra = calculate_ap(x, y, vx, vy)
         rps.append(rp)
         ras.append(ra)
+        anomaly = true_anomaly(x, y, vx, vy)
+        anomalies.append(anomaly)
+        omega = argument_of_periapsis(x, y, vx, vy)
+        omegas.append(omega)
+
+    record_data()
+    for i in range(steps):
         x, y, vx, vy = euler_step(x, y, vx, vy, dt)
         positions.append((x, y))
-    se = specific_energy(x, y, vx, vy)
-    energies.append(se)
-    h = specific_angular_momentum(x, y, vx, vy)
-    angular_momenta.append(h)
-    e = eccentricity(x, y, vx, vy)
-    eccentricities.append(e)
-    a = semi_major_axis(x, y, vx, vy)
-    axises.append(a)
-    rp, ra = calculate_ap(x, y, vx, vy)
-    rps.append(rp)
-    ras.append(ra)
+        if record == True:
+            record_data()
+    record_data()
 
-    return positions, energies, angular_momenta, eccentricities, classify_orbit(x, y, vx, vy), axises, rps, ras
+    return positions, energies, angular_momenta, eccentricities, classify_orbit(x, y, vx, vy), axises, rps, ras, orbital_period(x, y, vx, vy), anomalies, omegas
 
 r0 = 7000000
 vc = sqrt(mu_Earth/r0)
