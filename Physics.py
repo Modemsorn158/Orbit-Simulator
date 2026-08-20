@@ -5,13 +5,6 @@ mu_Earth = 3.986*(10**14) # m^3/s^2
 m_Earth = 5.972*(10**24) # kg
 r_Earth = 6.371*(10**6) # m
 
-print("μ : "+str(G*m_Earth)+" m^3/s^2")
-print("a : "+str(mu_Earth/(r_Earth**2))+" m/s^2")
-
-print("Vc : "+str(sqrt(mu_Earth/r_Earth)))
-
-print("="*20)
-
 def gravitational_acceleration(x, y):
     r = sqrt((x**2)+(y**2))
 
@@ -19,9 +12,6 @@ def gravitational_acceleration(x, y):
     ay = -((mu_Earth*y)/(r**3))
 
     return(ax, ay)
-
-print(gravitational_acceleration(3, 4))
-print(gravitational_acceleration(7000000, 0))
 
 def euler_step(x, y, vx, vy, dt):
     ax, ay = gravitational_acceleration(x, y)
@@ -46,27 +36,67 @@ def specific_angular_momentum(x, y, vx, vy):
     
     return h
 
+def eccentricity(x, y, vx, vy):
+    se = specific_energy(x, y, vx, vy)
+    h = specific_angular_momentum(x, y, vx, vy)
+
+    e = sqrt(max(0, 1+((2*se*(h**2)/(mu_Earth**2)))))
+
+    return e
+
+def classify_orbit(x, y, vx, vy):
+    e = eccentricity(x, y, vx, vy)
+    orbit_type = ""
+
+    if e < 3*(10**-3):
+        orbit_type = "Circular"
+    elif (e < (1+(10**-3))) and (e > (1-(10**-3))):
+        orbit_type = "Parabolic"
+    elif e > 1:
+        orbit_type = "Hyperbolic"
+    else:
+        orbit_type = "Elliptical"
+
+    return orbit_type
+
 def simulate(x, y, vx, vy, dt, steps):
     positions = []
     energies = []
     angular_momenta = []
+    eccentricities = []
 
     for i in range(steps):
-        e = specific_energy(x, y, vx, vy)
-        energies.append(e)
+        se = specific_energy(x, y, vx, vy)
+        energies.append(se)
         h = specific_angular_momentum(x, y, vx, vy)
         angular_momenta.append(h)
+        e = eccentricity(x, y, vx, vy)
+        eccentricities.append(e)
         x, y, vx, vy = euler_step(x, y, vx, vy, dt)
         positions.append((x, y))
-    e = specific_energy(x, y, vx, vy)
-    energies.append(e)
+    se = specific_energy(x, y, vx, vy)
+    energies.append(se)
     h = specific_angular_momentum(x, y, vx, vy)
     angular_momenta.append(h)
+    e = eccentricity(x, y, vx, vy)
+    eccentricities.append(e)
 
-    return positions, energies, angular_momenta
+    return positions, energies, angular_momenta, eccentricities, classify_orbit(x, y, vx, vy)
 
 r0 = 7000000
 vc = sqrt(mu_Earth/r0)
 ve = sqrt((2*mu_Earth)/r0)
 
-print("="*20)
+if __name__ == "__main__":
+    print("μ : "+str(G*m_Earth)+" m^3/s^2")
+    print("a : "+str(mu_Earth/(r_Earth**2))+" m/s^2")
+    print("Vc : "+str(sqrt(mu_Earth/r_Earth)))
+    print(gravitational_acceleration(3, 4))
+    print(gravitational_acceleration(7000000, 0))
+
+    print("="*20)
+    
+    #print(gravitational_acceleration(3, 4))
+    #print(gravitational_acceleration(7000000, 0))
+
+    print("="*20)
