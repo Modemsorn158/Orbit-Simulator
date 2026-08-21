@@ -1,6 +1,5 @@
-from Physics import gravitational_acceleration, euler_step, specific_energy, specific_angular_momentum, orbital_period_SMA, classify_orbit, mean_motion, mean_anomaly, eccentric_anomaly, mean_anomaly_epoch, simulate
-from Physics import mu_Earth, r_Earth, r0, vc, ve
-from math import sqrt, pi
+from Physics import *
+from math import sqrt, pi, radians
 import random
 import matplotlib.pyplot as plt
 
@@ -42,6 +41,13 @@ def run_validation(test_number, x, y, vx, vy, dt, steps, record):
     print("TEST UNIT "+str(test_number)+" : dt="+str(dt)+" steps="+str(steps))
 
     result, energies, angular_momenta, eccentricities, orbit_type, axises, rps, ras, orbital_period, anomalies, omegas = simulate(x, y, vx, vy, dt, steps, record)    
+
+    fp = result[-1]
+    fpx = fp[0]
+    fpy = fp[1]
+    print(("=")*5+" Position "+("=")*5)
+    print("Final x : "+str(fpx))
+    print("Final y : "+str(fpy))
 
     se1 = energies[0]
     sen = energies[-1]
@@ -172,6 +178,27 @@ def E_Test(a, e, t):
     print("Eccentric anomaly : "+str(E))
     print("True anomaly : "+str(v))
 
+# Position Test
+def position_Test(test_number, x, y, vx, vy, t):
+    a = semi_major_axis(x, y, vx, vy)
+    e = eccentricity(x, y, vx, vy)
+    omega = argument_of_periapsis(x, y, vx, vy)
+    v = radians(true_anomaly(x, y, vx, vy))
+    M0 = mean_anomaly_epoch(v, e)
+    T = orbital_period(x , y, vx, vy)
+
+    positions_euler, rt1, rt2, rt3, rt4, rt5, rt6, rt7, rt8, rt9, rt10 = simulate(x, y, vx, vy, (T/t)/10000, 10000, False)
+    position_kepler = propagate_position(a, e, omega, M0, T/t)
+    pe = positions_euler[-1]
+    pex = pe[0]
+    pey = pe[1]
+    pkx = position_kepler[0]
+    pky = position_kepler[1]
+
+    print(("=")*5+" Positions (Euler|Kepler) "+("=")*5)
+    print("X : "+str(pex)+"|"+str(pkx))
+    print("Y : "+str(pey)+"|"+str(pky))
+
 if __name__ == "__main__":
     pass
 
@@ -194,7 +221,6 @@ if __name__ == "__main__":
     #run_validation(3, -7000000, 0, 0, -0.9*vc, 1, 9000, False)
 
     # E Test
-    #T = orbital_period_SMA(7000000)
     #E_Test(7000000, 0.19, 0)
     #E_Test(7000000, 0.19, T/2)
     #E_Test(7000000, 0.19, T)
@@ -208,5 +234,9 @@ if __name__ == "__main__":
     #print(mean_anomaly_epoch(pi, 0.19))
     #print(mean_anomaly_epoch(3*pi/2, 0.19))
     #print(mean_anomaly_epoch(2*pi, 0.19))
+
+    # Position Test
+    #position_Test(1, 7000000, 0, 0, vc, 4)
+    #position_Test(2, 7000000, 0, 0, 0.9*vc, 4) #e=0.19
 
     #ve_Test([0.99, 1, 1.01], 1, 750000, False)

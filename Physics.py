@@ -1,4 +1,4 @@
-from math import sqrt, inf, pi, acos, degrees, atan2, sin, cos
+from math import sqrt, inf, pi, acos, degrees, atan2, sin, cos, radians
 
 G = 6.6743*(10**-11) # m^3/(kg*s^2)
 mu_Earth = 3.986*(10**14) # m^3/s^2
@@ -94,8 +94,8 @@ def eccentricity_vector(x, y, vx, vy):
     h = specific_angular_momentum(x, y, vx, vy)
     r = sqrt((x**2)+(y**2))
 
-    ex = (x/r)-((vy*h)/mu_Earth)
-    ey = (y/r)+((vx*h)/mu_Earth)
+    ex = ((vy*h)/mu_Earth)-(x/r)
+    ey = -((vx*h)/mu_Earth)-(y/r)
 
     return ex, ey
 
@@ -157,6 +157,8 @@ def eccentric_anomaly(M, e):
     for i in range(8):
         E = E-((E-(e*sin(E))-M)/(1-(e*cos(E))))
     v = atan2((sqrt(1-(e**2))*sin(E)), (cos(E)-e))
+    if v < 0:
+        v += 2*pi
 
     return E, v
 
@@ -168,6 +170,20 @@ def mean_anomaly_epoch(v, e):
     M0 = E-(e*sin(E))
 
     return M0%(2*pi)
+
+def propagate_position(a ,e, omega, M0, t):
+    omega = radians(omega)
+    n = mean_motion(a)
+    M = (M0+(n*t))%(2*pi)
+    E, v = eccentric_anomaly(M, e)
+
+    r = (a*(1-(e**2)))/(1+(e*cos(v)))
+    xo = r*cos(v)
+    yo = r*sin(v)
+    x = (xo*cos(omega))-(yo*sin(omega))
+    y = (xo*sin(omega))+(yo*cos(omega))
+
+    return x, y
 
 def simulate(x, y, vx, vy, dt, steps, record):
     # record = True > retains full history, leave false for initial-final only
@@ -211,11 +227,13 @@ def simulate(x, y, vx, vy, dt, steps, record):
 r0 = 7000000
 vc = sqrt(mu_Earth/r0)
 ve = sqrt((2*mu_Earth)/r0)
+T = orbital_period_SMA(7000000)
 
 if __name__ == "__main__":
     print("μ : "+str(G*m_Earth)+" m^3/s^2")
     print("a : "+str(mu_Earth/(r_Earth**2))+" m/s^2")
-    print("Vc : "+str(sqrt(mu_Earth/r_Earth)))
+    print("Vc : "+str(vc))
+    print("Ve : "+str(ve))
     print(gravitational_acceleration(3, 4))
     print(gravitational_acceleration(7000000, 0))
 
