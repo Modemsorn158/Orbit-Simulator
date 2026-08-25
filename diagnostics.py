@@ -60,3 +60,12 @@ def eccentricity(x, y, vx, vy):
     e0 = max(e0, 0)
     e = sqrt(e0)
     return e
+
+def apsides(x, y, vx, vy):
+    """Calculate the periapsis and apoapsis distances of an orbit given position and velocity."""
+    
+    a = semi_major_axis(x, y, vx, vy)
+    e = eccentricity(x, y, vx, vy)
+    r_periapsis = a * (1 - e)
+    r_apoapsis = a * (1 + e)
+    return r_periapsis, r_apoapsis
