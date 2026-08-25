@@ -2,9 +2,9 @@ from constants import EARTH_MU
 from integrators import forward_euler_step, semi_implicit_euler_step, velocity_verlet_step
 from simulation import simulate
 from plotter import plot_trajectory, plot_integrator_comparison, plot_diagnostic_comparison, plot_table
-from diagnostics import specific_energy_history, relative_change_percent, specific_angular_momentum_history, orbital_period, find_apsis_events, escape_velocity
+from diagnostics import specific_energy_history, relative_change_percent, specific_angular_momentum_history, orbital_period, apsides, find_apsis_events, escape_velocity
 from validation import circular_orbit_max_energy_drift
-from maneuvers import apply_prograde_delta_v
+from maneuvers import apply_prograde_delta_v, hohmann_transfer
 from math import sqrt
 
 def positions_from_states(states):
@@ -87,3 +87,18 @@ if __name__ == "__main__":
     states_burn = simulate(r, 0, vx, vy, 10, 800, velocity_verlet_step)
     positions_burn = positions_from_states(states_burn)
     plot_trajectory(10, positions_burn, "Trajectory Plot; Circular Orbit with Prograde Burn; Velocity Verlet Integration")
+    
+    # Figure 11, 12: Simulate a Hohmann transfer from a low Earth orbit to a higher orbit and plot the trajectory in multiple parts.
+    transfer_dt = 1
+    r1 = 7000000
+    vc1 = sqrt(EARTH_MU / r1)
+    delta_v1, delta_v2, t_transfer = hohmann_transfer(r1, 10000000)
+    transfer_vx, transfer_vy = apply_prograde_delta_v(0, vc1, delta_v1)
+    states_transfer1 = simulate(r1, 0, transfer_vx, transfer_vy, transfer_dt, round(t_transfer / transfer_dt), velocity_verlet_step)
+    positions_transfer1 = positions_from_states(states_transfer1)
+    plot_trajectory(1, positions_transfer1, "Trajectory Plot; Transfer Trajectory with Prograde Burn; Velocity Verlet Integration")
+    x2, y2, vx2, vy2 = states_transfer1[-1]
+    transfer_vx2, transfer_vy2 = apply_prograde_delta_v(vx2, vy2, delta_v2)
+    periapsis, apoapsis = apsides(x2, y2, transfer_vx2, transfer_vy2)
+    plot_table_data = [["Periapsis", periapsis], ["Apoapsis", apoapsis]]
+    plot_table(["Apside", "Value"], plot_table_data, "Periapsis and Apoapsis Post Transfer Burn")
