@@ -8,3 +8,12 @@ def specific_orbital_energy(x, y, vx, vy):
     v2 = (vx ** 2) + (vy ** 2)
     energy = (v2 / 2) - (EARTH_MU / r)
     return energy
+
+def specific_energy_history(states):
+    """Calculate the specific orbital energy for a list of states."""
+    
+    energy_history = []
+    for x, y, vx, vy in states:
+        energy = specific_orbital_energy(x, y, vx, vy)
+        energy_history.append(energy)
+    return energy_history
