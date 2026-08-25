@@ -2,9 +2,10 @@ from constants import EARTH_MU
 from integrators import forward_euler_step, semi_implicit_euler_step, velocity_verlet_step
 from simulation import simulate
 from plotter import plot_trajectory, plot_integrator_comparison, plot_diagnostic_comparison, plot_table
-from diagnostics import specific_energy_history, relative_change_percent, specific_angular_momentum_history, orbital_period, apsides, find_apsis_events, escape_velocity
+from diagnostics import altitude, specific_energy_history, relative_change_percent, specific_angular_momentum_history, orbital_period, apsides, find_apsis_events, escape_velocity
 from validation import circular_orbit_max_energy_drift
 from maneuvers import apply_prograde_delta_v, hohmann_transfer
+from collision import has_collision_with_earth
 from math import sqrt
 
 def positions_from_states(states):
@@ -102,3 +103,15 @@ if __name__ == "__main__":
     periapsis, apoapsis = apsides(x2, y2, transfer_vx2, transfer_vy2)
     plot_table_data = [["Periapsis", periapsis], ["Apoapsis", apoapsis]]
     plot_table(["Apside", "Value"], plot_table_data, "Periapsis and Apoapsis Post Transfer Burn")
+    
+    # Figure 13, 14: Simulate sub-orbital collision into Earth's surface and plot the trajectory using velocity Verlet integration
+    r = 7000000
+    vc = sqrt(EARTH_MU / r)
+    states = simulate(r, 0, 0, (0.9 * vc), 1, 10000, velocity_verlet_step, has_collision_with_earth)
+    positions = positions_from_states(states)
+    plot_trajectory(1, positions, "Trajectory Plot; Sub-Orbital Collision Into Earth's Surface; Velocity Verlet Integration")
+    collision_time = (len(states) - 1)
+    x, y = positions[-1]
+    alt = altitude(x, y)
+    plot_table_data = [["Collision time", collision_time], ["Altitude", alt]]
+    plot_table(["Key", "Value"], plot_table_data, "Sub-Orbital Collision Data")
