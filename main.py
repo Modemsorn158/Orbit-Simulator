@@ -2,7 +2,7 @@ from constants import EARTH_MU
 from integrators import forward_euler_step, semi_implicit_euler_step, velocity_verlet_step
 from simulation import simulate
 from plotter import plot_trajectory, plot_integrator_comparison, plot_diagnostic_comparison, plot_table
-from diagnostics import specific_energy_history, relative_change_percent, specific_angular_momentum_history
+from diagnostics import specific_energy_history, relative_change_percent, specific_angular_momentum_history, orbital_period, find_apsis_events
 from validation import circular_orbit_max_energy_drift
 from math import sqrt
 
@@ -54,3 +54,15 @@ if __name__ == "__main__":
     states = simulate(r_elliptical, 0, 0, (0.9 * vc_elliptical), 10, 800, semi_implicit_euler_step) 
     positions = [(x, y) for x, y, vx, vy in states]
     plot_trajectory(10, positions, "Trajectory Plot; Elliptical Orbit; Semi-Implicit Euler Integration")
+    
+    # Figure 8: Test phase accuracy on elliptical orbit using both semi-implicit Euler and velocity Verlet integration methods.
+    states_semi_implicit = simulate(r_elliptical, 0, 0, (0.9 * vc_elliptical), 10, 800, semi_implicit_euler_step)
+    states_velocity_verlet = simulate(r_elliptical, 0, 0, (0.9 * vc_elliptical), 10, 800, velocity_verlet_step)
+    apsis_events_semi_implicit = find_apsis_events(states_semi_implicit, 10)
+    apsis_events_velocity_verlet = find_apsis_events(states_velocity_verlet, 10)
+    T = orbital_period(r_elliptical, 0, (0.9 * vc_elliptical), 0)
+    plot_table_data = []
+    plot_table_data.append(["Analytical", f"{(T / 2):.2f}", f"{T:.2f}"])
+    plot_table_data.append(["Semi-Implicit Euler", f"{apsis_events_semi_implicit[0][1]:.2f}", f"{apsis_events_semi_implicit[1][1]:.2f}"])
+    plot_table_data.append(["Velocity Verlet", f"{apsis_events_velocity_verlet[0][1]:.2f}", f"{apsis_events_velocity_verlet[1][1]:.2f}"])
+    plot_table(["Method", "Periapsis Time (s)", "Apoapsis Time (s)"], plot_table_data, "Apsis Event Times for Elliptical Orbit; Semi-Implicit Euler vs Velocity Verlet")
