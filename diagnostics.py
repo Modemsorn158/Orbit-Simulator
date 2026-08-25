@@ -26,3 +26,18 @@ def relative_change_percent(values):
     initial_value = values[0]
     reference_size = abs(initial_value)
     return [(value - initial_value) / reference_size * 100 for value in values]
+
+def specific_angular_momentum(x, y, vx, vy):
+    """Calculate the specific angular momentum of an object in orbit."""
+    
+    h = (x * vy) - (y * vx)
+    return h
+
+def specific_angular_momentum_history(states):
+    """Calculate the specific angular momentum for a list of states."""
+    
+    h_history = []
+    for x, y, vx, vy in states:
+        h = specific_angular_momentum(x, y, vx, vy)
+        h_history.append(h)
+    return h_history
