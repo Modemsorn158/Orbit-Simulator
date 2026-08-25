@@ -2,7 +2,7 @@ from constants import EARTH_MU
 from math import sqrt
 
 def gravitational_acceleration(x, y):
-    """Calculate the gravitational acceleration at a given position (x, y) and returns acceleration in both vectors (ax, ay) in meters."""
+    """Calculate the gravitational acceleration at a given position (x, y) in meters and returns acceleration in both vectors (ax, ay) in m/s^2."""
     
     r = sqrt((x ** 2) + (y ** 2))
     if abs(r) < 1e-10:
