@@ -1,6 +1,7 @@
 import unittest
 from constants import EARTH_MU, EARTH_RADIUS
 from diagnostics import specific_orbital_energy, semi_major_axis, eccentricity, apsides, escape_velocity
+from maneuvers import apply_delta_v
 from math import sqrt
 
 class TestDiagnostics(unittest.TestCase):
@@ -49,3 +50,16 @@ class TestDiagnostics(unittest.TestCase):
         self.assertAlmostEqual(ve2, expected_ve2, delta=0.01)
         with self.assertRaises(ValueError):
             escape_velocity(x3, y3)
+            
+    # Delta v
+    def test_apply_delta_v(self):
+        vx1, vy1, delta_vx1, delta_vy1 = 0, 7500, 0, 100
+        new_vx1, new_vy1 = apply_delta_v(vx1, vy1, delta_vx1, delta_vy1)
+        expected_vx1, expected_vy1 = 0, 7600
+        vx2, vy2, delta_vx2, delta_vy2 = 100, -50, -20, 70
+        new_vx2, new_vy2 = apply_delta_v(vx2, vy2, delta_vx2, delta_vy2)
+        expected_vx2, expected_vy2 = 80, 20
+        self.assertAlmostEqual(new_vx1, expected_vx1, delta=1)
+        self.assertAlmostEqual(new_vy1, expected_vy1, delta=1)
+        self.assertAlmostEqual(new_vx2, expected_vx2, delta=1)
+        self.assertAlmostEqual(new_vy2, expected_vy2, delta=1)
