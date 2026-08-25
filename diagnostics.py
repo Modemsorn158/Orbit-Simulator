@@ -17,3 +17,12 @@ def specific_energy_history(states):
         energy = specific_orbital_energy(x, y, vx, vy)
         energy_history.append(energy)
     return energy_history
+
+def relative_change_percent(values):
+    """Calculate the relative change percentage of a list of values compared to the initial value."""
+    
+    if values[0] == 0:
+        raise ValueError("Initial value is zero; relative change percentage is undefined.")
+    initial_value = values[0]
+    reference_size = abs(initial_value)
+    return [(value - initial_value) / reference_size * 100 for value in values]
