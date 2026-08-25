@@ -1,8 +1,8 @@
 from constants import EARTH_MU
 from integrators import forward_euler_step, semi_implicit_euler_step
 from simulation import simulate
-from plotter import plot_trajectory, plot_integrator_comparison, plot_energy_comparison
-from diagnostics import specific_energy_history, relative_change_percent
+from plotter import plot_trajectory, plot_integrator_comparison, plot_diagnostic_comparison
+from diagnostics import specific_energy_history, relative_change_percent, specific_angular_momentum_history
 from math import sqrt
 
 if __name__ == "__main__":
@@ -27,4 +27,11 @@ if __name__ == "__main__":
     energy_semi_implicit = specific_energy_history(states_semi_implicit)
     relative_change_forward = relative_change_percent(energy_forward)
     relative_change_semi_implicit = relative_change_percent(energy_semi_implicit)
-    plot_energy_comparison(dt, relative_change_forward, relative_change_semi_implicit, "Forward Euler", "Semi-Implicit Euler")
+    plot_diagnostic_comparison(dt, relative_change_forward, relative_change_semi_implicit, "Forward Euler", "Semi-Implicit Euler", "Relative Change in Specific Orbital Energy", "Relative Change (%)")
+    
+    # Figure 5: Compare the relative change in specific angular momentum for the two integrators.
+    h_forward = specific_angular_momentum_history(states_forward)
+    h_semi_implicit = specific_angular_momentum_history(states_semi_implicit)
+    relative_change_h_forward = relative_change_percent(h_forward)
+    relative_change_h_semi_implicit = relative_change_percent(h_semi_implicit)
+    plot_diagnostic_comparison(dt, relative_change_h_forward, relative_change_h_semi_implicit, "Forward Euler", "Semi-Implicit Euler", "Relative Change in Specific Angular Momentum", "Relative Change (%)")
