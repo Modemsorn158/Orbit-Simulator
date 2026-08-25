@@ -1,4 +1,4 @@
-from constants import EARTH_MU
+from constants import EARTH_RADIUS, EARTH_MU
 from math import sqrt, pi
 
 def specific_orbital_energy(x, y, vx, vy):
@@ -76,3 +76,25 @@ def orbital_period(x, y, vx, vy):
     a = semi_major_axis(x, y, vx, vy)
     T = 2 * pi * sqrt((a ** 3) / EARTH_MU)
     return T
+
+def altitude(x, y):
+    """Calculate the altitude of an object above Earth's surface given its position."""
+    
+    r = sqrt((x ** 2) + (y ** 2))
+    altitude = r - EARTH_RADIUS
+    return altitude
+
+def speed(vx, vy):
+    """Calculate the speed of an object given its velocity components."""
+    
+    v = sqrt((vx ** 2) + (vy ** 2))
+    return v
+
+def radial_velocity(x, y, vx, vy):
+    """Calculate the radial velocity of an object given its position and velocity components."""
+    
+    r = sqrt((x ** 2) + (y ** 2))
+    if r == 0:
+        raise ValueError("Position is at the origin; radial velocity is undefined.")
+    vr = ((x * vx) + (y * vy)) / r
+    return vr
