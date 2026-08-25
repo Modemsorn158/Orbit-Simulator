@@ -47,3 +47,16 @@ def plot_diagnostic_comparison(dt, changes1, changes2, label1, label2, title, y_
     plt.grid()
     plt.legend()
     plt.show()
+    
+def plot_table(headers, data, title):
+    """Plots a table with the given headers and data."""
+    
+    fig, ax = plt.subplots()
+    ax.axis('tight')
+    ax.axis('off')
+    table = ax.table(cellText=data, colLabels=headers, loc='center', cellLoc='center')
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    table.scale(1.2, 1.2)
+    plt.title(title)
+    plt.show()

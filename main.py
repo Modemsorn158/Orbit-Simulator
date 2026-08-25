@@ -1,8 +1,9 @@
 from constants import EARTH_MU
 from integrators import forward_euler_step, semi_implicit_euler_step
 from simulation import simulate
-from plotter import plot_trajectory, plot_integrator_comparison, plot_diagnostic_comparison
+from plotter import plot_trajectory, plot_integrator_comparison, plot_diagnostic_comparison, plot_table
 from diagnostics import specific_energy_history, relative_change_percent, specific_angular_momentum_history
+from validation import circular_orbit_max_energy_drift
 from math import sqrt
 
 if __name__ == "__main__":
@@ -35,3 +36,13 @@ if __name__ == "__main__":
     relative_change_h_forward = relative_change_percent(h_forward)
     relative_change_h_semi_implicit = relative_change_percent(h_semi_implicit)
     plot_diagnostic_comparison(dt, relative_change_h_forward, relative_change_h_semi_implicit, "Forward Euler", "Semi-Implicit Euler", "Relative Change in Specific Angular Momentum", "Relative Change (%)")
+    
+    # Figure 6: Compare the maximum percentage energy drift for different time steps using both integrators.
+    t = 6000
+    dt_list = [1, 10, 30]
+    plot_table_data = []
+    for dt in dt_list:
+        d1 = circular_orbit_max_energy_drift(r, t, dt, forward_euler_step)
+        d2 = circular_orbit_max_energy_drift(r, t, dt, semi_implicit_euler_step)
+        plot_table_data.append([f"dt={dt}", f"{d1:.6f}", f"{d2:.6f}"])
+    plot_table(["Time Step (s)", "Forward Euler Max Energy Drift (%)", "Semi-Implicit Euler Max Energy Drift (%)"], plot_table_data, "Maximum Percentage Energy Drift for Different Time Steps")
