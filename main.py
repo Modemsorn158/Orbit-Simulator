@@ -1,5 +1,5 @@
 from constants import EARTH_MU
-from integrators import forward_euler_step, semi_implicit_euler_step
+from integrators import forward_euler_step, semi_implicit_euler_step, velocity_verlet_step
 from simulation import simulate
 from plotter import plot_trajectory, plot_integrator_comparison, plot_diagnostic_comparison, plot_table
 from diagnostics import specific_energy_history, relative_change_percent, specific_angular_momentum_history
@@ -37,15 +37,16 @@ if __name__ == "__main__":
     relative_change_h_semi_implicit = relative_change_percent(h_semi_implicit)
     plot_diagnostic_comparison(dt, relative_change_h_forward, relative_change_h_semi_implicit, "Forward Euler", "Semi-Implicit Euler", "Relative Change in Specific Angular Momentum", "Relative Change (%)")
     
-    # Figure 6: Compare the maximum percentage energy drift for different time steps using both integrators.
+    # Figure 6: Compare the maximum percentage energy drift for different time steps using all integrators.
     t = 6000
     dt_list = [1, 10, 30]
     plot_table_data = []
     for dt in dt_list:
         forward_drift = circular_orbit_max_energy_drift(r, t, dt, forward_euler_step)
         semi_implicit_drift = circular_orbit_max_energy_drift(r, t, dt, semi_implicit_euler_step)
-        plot_table_data.append([f"dt={dt}", f"{forward_drift:.6f}", f"{semi_implicit_drift:.6f}"])
-    plot_table(["Time Step (s)", "Forward Euler Max Energy Drift (%)", "Semi-Implicit Euler Max Energy Drift (%)"], plot_table_data, "Maximum Percentage Energy Drift for Different Time Steps")
+        velocity_verlet_drift = circular_orbit_max_energy_drift(r, t, dt, velocity_verlet_step)
+        plot_table_data.append([f"dt={dt}", f"{forward_drift:.12f}", f"{semi_implicit_drift:.12f}", f"{velocity_verlet_drift:.12f}"])
+    plot_table(["Time Step (s)", "Forward Euler Max Energy Drift (%)", "Semi-Implicit Euler Max Energy Drift (%)", "Velocity Verlet Max Energy Drift (%)"], plot_table_data, "Maximum Percentage Energy Drift for Different Time Steps")
     
     # Figure 7: Simulate an eliptical orbit and plot the trajectory using semi-implicit Euler integration.
     r_elliptical = 10000000
