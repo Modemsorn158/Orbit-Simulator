@@ -41,3 +41,12 @@ def specific_angular_momentum_history(states):
         h = specific_angular_momentum(x, y, vx, vy)
         h_history.append(h)
     return h_history
+
+def semi_major_axis(x, y, vx, vy):
+    """Calculate the semi-major axis of an orbit given position and velocity."""
+    
+    energy = specific_orbital_energy(x, y, vx, vy)
+    if energy >= 0:
+        raise ValueError("Orbit is not bound; semi-major axis is undefined.")
+    a = -(EARTH_MU / (2 * energy))
+    return a
