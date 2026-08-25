@@ -116,3 +116,12 @@ def find_apsis_events(states, dt):
             events.append(("Apoapsis", event_time, current_state))
         previous_radial_velocity = current_radial_velocity
     return events
+
+def escape_velocity(x, y):
+    """Calculate the escape velocity at a given position."""
+    
+    r = sqrt((x ** 2) + (y ** 2))
+    if r == 0:
+        raise ValueError("Position is at the origin; escape velocity is undefined.")
+    ve = sqrt((2 * EARTH_MU) / r)
+    return ve

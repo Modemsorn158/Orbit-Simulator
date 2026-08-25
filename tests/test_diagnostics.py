@@ -1,6 +1,6 @@
 import unittest
-from constants import EARTH_MU
-from diagnostics import specific_orbital_energy, semi_major_axis, eccentricity, apsides
+from constants import EARTH_MU, EARTH_RADIUS
+from diagnostics import specific_orbital_energy, semi_major_axis, eccentricity, apsides, escape_velocity
 from math import sqrt
 
 class TestDiagnostics(unittest.TestCase):
@@ -35,3 +35,17 @@ class TestDiagnostics(unittest.TestCase):
     def test_escape_orbit_has_no_bound_semi_major_axis(self):
         with self.assertRaises(ValueError):
             semi_major_axis(self.escape_r, 0, 0, self.escape_ve)
+            
+    # Escape velocity
+    def test_escape_velocity(self):
+        x1, y1 = EARTH_RADIUS, 0
+        x2, y2 = 7000000, 0
+        x3, y3 = 0, 0
+        ve1 = escape_velocity(x1, y1)
+        ve2 = escape_velocity(x2, y2)
+        expected_ve1 = 11185.98
+        expected_ve2 = 10671.58
+        self.assertAlmostEqual(ve1, expected_ve1, delta=0.01)
+        self.assertAlmostEqual(ve2, expected_ve2, delta=0.01)
+        with self.assertRaises(ValueError):
+            escape_velocity(x3, y3)
