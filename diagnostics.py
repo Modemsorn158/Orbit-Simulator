@@ -1,5 +1,5 @@
 from constants import EARTH_MU
-from math import sqrt
+from math import sqrt, pi
 
 def specific_orbital_energy(x, y, vx, vy):
     """Calculate the specific orbital energy of an object in orbit."""
@@ -69,3 +69,10 @@ def apsides(x, y, vx, vy):
     r_periapsis = a * (1 - e)
     r_apoapsis = a * (1 + e)
     return r_periapsis, r_apoapsis
+
+def orbital_period(x, y, vx, vy):
+    """Calculate the orbital period of an orbit given position and velocity."""
+    
+    a = semi_major_axis(x, y, vx, vy)
+    T = 2 * pi * sqrt((a ** 3) / EARTH_MU)
+    return T
