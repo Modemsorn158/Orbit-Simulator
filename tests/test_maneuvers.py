@@ -1,5 +1,5 @@
 import unittest
-from maneuvers import apply_delta_v, apply_prograde_delta_v
+from maneuvers import apply_delta_v, apply_prograde_delta_v, hohmann_transfer
 
 class TestManeuvers(unittest.TestCase):
     # Delta v
@@ -30,3 +30,14 @@ class TestManeuvers(unittest.TestCase):
         self.assertAlmostEqual(new_vy2, expected_vy2, delta=1)
         with self.assertRaises(ValueError):
             apply_prograde_delta_v(vx3, vy3, delta_v3)
+            
+    # Hohmann transfer
+    def test_hohmann_transfer(self):
+        r1, r2 = 7000000, 10000000
+        delta_v1, delta_v2, t = hohmann_transfer(r1, r2)
+        expected_delta_v1 = 638.782
+        expected_delta_v2 = 584.082
+        expected_t = 3899.559
+        self.assertAlmostEqual(delta_v1, expected_delta_v1, delta=1e-3)
+        self.assertAlmostEqual(delta_v2, expected_delta_v2, delta=1e-3)
+        self.assertAlmostEqual(t, expected_t, delta=1e-3)
