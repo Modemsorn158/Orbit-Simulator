@@ -4,6 +4,7 @@ from simulation import simulate
 from plotter import plot_trajectory, plot_integrator_comparison, plot_diagnostic_comparison, plot_table
 from diagnostics import specific_energy_history, relative_change_percent, specific_angular_momentum_history, orbital_period, find_apsis_events, escape_velocity
 from validation import circular_orbit_max_energy_drift
+from maneuvers import apply_prograde_delta_v
 from math import sqrt
 
 def positions_from_states(states):
@@ -78,3 +79,11 @@ if __name__ == "__main__":
     states_escape = simulate(r, 0, 0, (1.01 * ve), 10, 2000, velocity_verlet_step)
     positions_escape = positions_from_states(states_escape)
     plot_trajectory(10, positions_escape, "Trajectory Plot; Hyperbolic Escape Trajectory; Velocity Verlet Integration")
+    
+    # Figure 10: Circular orbit with prograde burn applied and plot the trajectory using velocity Verlet integration.
+    r = 7000000
+    vc = sqrt(EARTH_MU / r)
+    vx, vy = apply_prograde_delta_v(0, vc, 500)
+    states_burn = simulate(r, 0, vx, vy, 10, 800, velocity_verlet_step)
+    positions_burn = positions_from_states(states_burn)
+    plot_trajectory(10, positions_burn, "Trajectory Plot; Circular Orbit with Prograde Burn; Velocity Verlet Integration")
