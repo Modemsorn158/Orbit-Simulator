@@ -50,3 +50,13 @@ def semi_major_axis(x, y, vx, vy):
         raise ValueError("Orbit is not bound; semi-major axis is undefined.")
     a = -(EARTH_MU / (2 * energy))
     return a
+
+def eccentricity(x, y, vx, vy):
+    """Calculate the eccentricity of an orbit given position and velocity."""
+    
+    energy = specific_orbital_energy(x, y, vx, vy)
+    h = specific_angular_momentum(x, y, vx, vy)
+    e0 = 1 + ((2 * energy * (h ** 2)) / (EARTH_MU ** 2))
+    e0 = max(e0, 0)
+    e = sqrt(e0)
+    return e
