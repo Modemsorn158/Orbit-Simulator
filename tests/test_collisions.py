@@ -1,7 +1,7 @@
 import unittest
 from simulation import simulate
 from constants import EARTH_RADIUS, EARTH_MU
-from collision import has_collision_with_earth
+from collision import has_collision_with_earth, estimate_earth_impact_time
 from integrators import velocity_verlet_step
 from math import sqrt
 
@@ -29,3 +29,10 @@ class TestCollisions(unittest.TestCase):
         self.assertEqual(len(states1), 1)
         self.assertEqual(len(states1[0]), 4)
         self.assertEqual(len(states2), 501)
+        
+    # Collision altitude estimation test
+    def test_collision_altitude(self):
+        t = estimate_earth_impact_time([1000 + EARTH_RADIUS, 0, 0, 0], [-1000 + EARTH_RADIUS, 0, 0, 0], 2)
+        self.assertEqual(t, 1)
+        with self.assertRaises(ValueError):
+            estimate_earth_impact_time([EARTH_RADIUS + 1, 0, 0, 0], [EARTH_RADIUS + 1, 0, 0, 0], 1)
