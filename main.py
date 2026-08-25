@@ -13,16 +13,16 @@ if __name__ == "__main__":
     vc = sqrt(EARTH_MU / r)  # m/s
     states_forward = simulate(r, 0, 0, vc, dt, 600, forward_euler_step)
     positions_forward = [(x, y) for x, y, vx, vy in states_forward]
-    plot_trajectory(dt, positions_forward)
+    plot_trajectory(dt, positions_forward, "Trajectory Plot; Forward Euler Integration")
 
     # Figure 2: Simulate and plot the trajectory of a satellite in a circular orbit around Earth using semi-implicit Euler integration.
     states_semi_implicit = simulate(r, 0, 0, vc, dt, 600, semi_implicit_euler_step)
     positions_semi_implicit = [(x, y) for x, y, vx, vy in states_semi_implicit]
-    plot_trajectory(dt, positions_semi_implicit)
+    plot_trajectory(dt, positions_semi_implicit, "Trajectory Plot; Semi-Implicit Euler Integration")
 
     # Figure 3: Compare the trajectories of the two integrators.
-    plot_integrator_comparison(dt, positions_forward, positions_semi_implicit, "Forward Euler", "Semi-Implicit Euler")
-    
+    plot_integrator_comparison(dt, positions_forward, positions_semi_implicit, "Forward Euler", "Semi-Implicit Euler", "Integrator Comparison")
+
     # Figure 4: Compare the relative change in specific orbital energy for the two integrators.
     energy_forward = specific_energy_history(states_forward)
     energy_semi_implicit = specific_energy_history(states_semi_implicit)
@@ -42,7 +42,14 @@ if __name__ == "__main__":
     dt_list = [1, 10, 30]
     plot_table_data = []
     for dt in dt_list:
-        d1 = circular_orbit_max_energy_drift(r, t, dt, forward_euler_step)
-        d2 = circular_orbit_max_energy_drift(r, t, dt, semi_implicit_euler_step)
-        plot_table_data.append([f"dt={dt}", f"{d1:.6f}", f"{d2:.6f}"])
+        forward_drift = circular_orbit_max_energy_drift(r, t, dt, forward_euler_step)
+        semi_implicit_drift = circular_orbit_max_energy_drift(r, t, dt, semi_implicit_euler_step)
+        plot_table_data.append([f"dt={dt}", f"{forward_drift:.6f}", f"{semi_implicit_drift:.6f}"])
     plot_table(["Time Step (s)", "Forward Euler Max Energy Drift (%)", "Semi-Implicit Euler Max Energy Drift (%)"], plot_table_data, "Maximum Percentage Energy Drift for Different Time Steps")
+    
+    # Figure 7: Simulate an eliptical orbit and plot the trajectory using semi-implicit Euler integration.
+    r_elliptical = 10000000
+    vc_elliptical = sqrt(EARTH_MU / r_elliptical)
+    states = simulate(r_elliptical, 0, 0, (0.9 * vc_elliptical), 10, 800, semi_implicit_euler_step) 
+    positions = [(x, y) for x, y, vx, vy in states]
+    plot_trajectory(10, positions, "Trajectory Plot; Elliptical Orbit; Semi-Implicit Euler Integration")
