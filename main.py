@@ -2,7 +2,7 @@ from constants import EARTH_MU
 from integrators import forward_euler_step, semi_implicit_euler_step, velocity_verlet_step
 from simulation import simulate
 from plotter import plot_trajectory, plot_integrator_comparison, plot_diagnostic_comparison, plot_table
-from diagnostics import specific_energy_history, relative_change_percent, specific_angular_momentum_history, orbital_period, find_apsis_events
+from diagnostics import specific_energy_history, relative_change_percent, specific_angular_momentum_history, orbital_period, find_apsis_events, escape_velocity
 from validation import circular_orbit_max_energy_drift
 from math import sqrt
 
@@ -71,3 +71,10 @@ if __name__ == "__main__":
     plot_table_data.append(["Semi-Implicit Euler", f"{apsis_events_semi_implicit[0][1]:.2f}", f"{apsis_events_semi_implicit[1][1]:.2f}"])
     plot_table_data.append(["Velocity Verlet", f"{apsis_events_velocity_verlet[0][1]:.2f}", f"{apsis_events_velocity_verlet[1][1]:.2f}"])
     plot_table(["Method", "Periapsis Time (s)", "Apoapsis Time (s)"], plot_table_data, "Apsis Event Times for Elliptical Orbit; Semi-Implicit Euler vs Velocity Verlet")
+    
+    # Figure 9: Hyperbolic escape trajectory simulation and plot the trajectory using velocity Verlet integration.
+    r = 7000000
+    ve = escape_velocity(r, 0)
+    states_escape = simulate(r, 0, 0, (1.01 * ve), 10, 2000, velocity_verlet_step)
+    positions_escape = positions_from_states(states_escape)
+    plot_trajectory(10, positions_escape, "Trajectory Plot; Hyperbolic Escape Trajectory; Velocity Verlet Integration")
