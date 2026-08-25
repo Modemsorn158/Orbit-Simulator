@@ -19,3 +19,14 @@ def semi_implicit_euler_step(x, y, vx, vy, dt):
     x_new = x + (vx_new * dt)
     y_new = y + (vy_new * dt)
     return x_new, y_new, vx_new, vy_new
+
+def velocity_verlet_step(x, y, vx, vy, dt):
+    """Perform a single time step using the Velocity Verlet method."""
+    
+    ax, ay = gravitational_acceleration(x, y)
+    x_new = x + (vx * dt) + (0.5 * ax * (dt ** 2))
+    y_new = y + (vy * dt) + (0.5 * ay * (dt ** 2))
+    ax_new, ay_new = gravitational_acceleration(x_new, y_new)
+    vx_new = vx + (0.5 * (ax + ax_new) * dt)
+    vy_new = vy + (0.5 * (ay + ay_new) * dt)
+    return x_new, y_new, vx_new, vy_new
