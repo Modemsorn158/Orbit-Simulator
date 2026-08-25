@@ -98,3 +98,21 @@ def radial_velocity(x, y, vx, vy):
         raise ValueError("Position is at the origin; radial velocity is undefined.")
     vr = ((x * vx) + (y * vy)) / r
     return vr
+
+def find_apsis_events(states, dt):
+    """Find the event, time and states of periapsis and apoapsis events in a list of states."""
+    
+    events = []
+    current_state = states[0]
+    previous_radial_velocity = radial_velocity(current_state[0], current_state[1], current_state[2], current_state[3])
+    for i in range(1, len(states)):
+        current_state = states[i]
+        current_radial_velocity = radial_velocity(current_state[0], current_state[1], current_state[2], current_state[3])
+        if previous_radial_velocity < 0 and current_radial_velocity >= 0:
+            event_time = i * dt
+            events.append(("Periapsis", event_time, current_state))
+        if previous_radial_velocity > 0 and current_radial_velocity <= 0:
+            event_time = i * dt
+            events.append(("Apoapsis", event_time, current_state))
+        previous_radial_velocity = current_radial_velocity
+    return events
