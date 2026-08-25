@@ -9,12 +9,14 @@ if __name__ == "__main__":
     dt = 10
     r = 7000000
     vc = sqrt(EARTH_MU / r)  # m/s
-    positions_forward = simulate(r, 0, 0, vc, dt, 600, forward_euler_step)
+    states_forward = simulate(r, 0, 0, vc, dt, 600, forward_euler_step)
+    positions_forward = [(x, y) for x, y, vx, vy in states_forward]
     plot_trajectory(dt, positions_forward)
 
     # Figure 2: Simulate and plot the trajectory of a satellite in a circular orbit around Earth using semi-implicit Euler integration.
-    positions_semi_implicit = simulate(r, 0, 0, vc, dt, 600, semi_implicit_euler_step)
+    states_semi_implicit = simulate(r, 0, 0, vc, dt, 600, semi_implicit_euler_step)
+    positions_semi_implicit = [(x, y) for x, y, vx, vy in states_semi_implicit]
     plot_trajectory(dt, positions_semi_implicit)
 
     # Figure 3: Compare the trajectories of the two integrators.
-    plot_integrator_comparison(dt, positions1=positions_forward, positions2=positions_semi_implicit, label1="Forward Euler", label2="Semi-Implicit Euler")
+    plot_integrator_comparison(dt, positions_forward, positions_semi_implicit, "Forward Euler", "Semi-Implicit Euler")

@@ -21,7 +21,6 @@ def plot_integrator_comparison(dt, positions1, positions2, label1, label2):
     
     x_list1, y_list1 = zip(*positions1)
     x_list2, y_list2 = zip(*positions2)
-    
     plot, ax = plt.subplots()
     ax.plot(x_list1, y_list1, linestyle='-', color='b', label=label1)
     ax.plot(x_list2, y_list2, linestyle='-', color='r', label=label2)
