@@ -6,18 +6,23 @@ from diagnostics import specific_energy_history, relative_change_percent, specif
 from validation import circular_orbit_max_energy_drift
 from math import sqrt
 
+def positions_from_states(states):
+    """Extract positions (x, y) from a list of states."""
+    
+    return [(x, y) for x, y, vx, vy in states]
+
 if __name__ == "__main__":
     # Figure 1: Simulate and plot the trajectory of a satellite in a circular orbit around Earth using forward Euler integration.
     dt = 10
     r = 7000000
     vc = sqrt(EARTH_MU / r)  # m/s
     states_forward = simulate(r, 0, 0, vc, dt, 600, forward_euler_step)
-    positions_forward = [(x, y) for x, y, vx, vy in states_forward]
+    positions_forward = positions_from_states(states_forward)
     plot_trajectory(dt, positions_forward, "Trajectory Plot; Forward Euler Integration")
 
     # Figure 2: Simulate and plot the trajectory of a satellite in a circular orbit around Earth using semi-implicit Euler integration.
     states_semi_implicit = simulate(r, 0, 0, vc, dt, 600, semi_implicit_euler_step)
-    positions_semi_implicit = [(x, y) for x, y, vx, vy in states_semi_implicit]
+    positions_semi_implicit = positions_from_states(states_semi_implicit)
     plot_trajectory(dt, positions_semi_implicit, "Trajectory Plot; Semi-Implicit Euler Integration")
 
     # Figure 3: Compare the trajectories of the two integrators.
@@ -52,7 +57,7 @@ if __name__ == "__main__":
     r_elliptical = 10000000
     vc_elliptical = sqrt(EARTH_MU / r_elliptical)
     states = simulate(r_elliptical, 0, 0, (0.9 * vc_elliptical), 10, 800, semi_implicit_euler_step) 
-    positions = [(x, y) for x, y, vx, vy in states]
+    positions = positions_from_states(states)
     plot_trajectory(10, positions, "Trajectory Plot; Elliptical Orbit; Semi-Implicit Euler Integration")
     
     # Figure 8: Test phase accuracy on elliptical orbit using both semi-implicit Euler and velocity Verlet integration methods.
@@ -60,7 +65,7 @@ if __name__ == "__main__":
     states_velocity_verlet = simulate(r_elliptical, 0, 0, (0.9 * vc_elliptical), 10, 800, velocity_verlet_step)
     apsis_events_semi_implicit = find_apsis_events(states_semi_implicit, 10)
     apsis_events_velocity_verlet = find_apsis_events(states_velocity_verlet, 10)
-    T = orbital_period(r_elliptical, 0, (0.9 * vc_elliptical), 0)
+    T = orbital_period(r_elliptical, 0, 0, (0.9 * vc_elliptical))
     plot_table_data = []
     plot_table_data.append(["Analytical", f"{(T / 2):.2f}", f"{T:.2f}"])
     plot_table_data.append(["Semi-Implicit Euler", f"{apsis_events_semi_implicit[0][1]:.2f}", f"{apsis_events_semi_implicit[1][1]:.2f}"])
