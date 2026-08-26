@@ -110,8 +110,8 @@ if __name__ == "__main__":
     states = simulate(r, 0, 0, (0.9 * vc), 1, 10000, velocity_verlet_step, has_collision_with_earth, estimate_earth_impact_time)
     positions = positions_from_states(states)
     plot_trajectory(1, positions, "Trajectory Plot; Sub-Orbital Collision Into Earth's Surface; Velocity Verlet Integration")
-    collision_time = (len(states) - 1)
+    collision_step_index = (len(states) - 1)
     x, y = positions[-1]
     alt = altitude(x, y)
-    plot_table_data = [["Collision time", collision_time], ["Altitude", alt]]
+    plot_table_data = [["Collision step index", collision_step_index], ["Altitude", alt]]
     plot_table(["Key", "Value"], plot_table_data, "Sub-Orbital Collision Data")
