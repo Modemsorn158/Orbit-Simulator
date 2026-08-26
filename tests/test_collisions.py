@@ -1,4 +1,5 @@
 import unittest
+from diagnostics import altitude
 from simulation import simulate
 from constants import EARTH_RADIUS, EARTH_MU
 from collision import has_collision_with_earth, estimate_earth_impact_time
@@ -36,3 +37,16 @@ class TestCollisions(unittest.TestCase):
         self.assertEqual(t, 1)
         with self.assertRaises(ValueError):
             estimate_earth_impact_time([EARTH_RADIUS + 1, 0, 0, 0], [EARTH_RADIUS + 1, 0, 0, 0], 1)
+            
+    # Impact test
+    def test_impact(self):
+        r = 7000000
+        vc = sqrt(EARTH_MU / r)
+        states1 = simulate(r, 0, 0, (0.9 * vc), 1, 10000, velocity_verlet_step, has_collision_with_earth, estimate_earth_impact_time)
+        state1_final = states1[-1]
+        alt1 = altitude(state1_final[0], state1_final[1])
+        states2 = simulate(r, 0, 0, (0.9 * vc), 1, 10000, velocity_verlet_step, has_collision_with_earth)
+        state2_final = states2[-1]
+        alt2 = altitude(state2_final[0], state2_final[1])
+        self.assertLess(abs(alt1), 1)
+        self.assertLess(alt2, 0)

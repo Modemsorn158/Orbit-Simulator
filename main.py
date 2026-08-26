@@ -5,7 +5,7 @@ from plotter import plot_trajectory, plot_integrator_comparison, plot_diagnostic
 from diagnostics import altitude, specific_energy_history, relative_change_percent, specific_angular_momentum_history, orbital_period, apsides, find_apsis_events, escape_velocity
 from validation import circular_orbit_max_energy_drift
 from maneuvers import apply_prograde_delta_v, hohmann_transfer
-from collision import has_collision_with_earth
+from collision import has_collision_with_earth, estimate_earth_impact_time
 from math import sqrt
 
 def positions_from_states(states):
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     # Figure 13, 14: Simulate sub-orbital collision into Earth's surface and plot the trajectory using velocity Verlet integration
     r = 7000000
     vc = sqrt(EARTH_MU / r)
-    states = simulate(r, 0, 0, (0.9 * vc), 1, 10000, velocity_verlet_step, has_collision_with_earth)
+    states = simulate(r, 0, 0, (0.9 * vc), 1, 10000, velocity_verlet_step, has_collision_with_earth, estimate_earth_impact_time)
     positions = positions_from_states(states)
     plot_trajectory(1, positions, "Trajectory Plot; Sub-Orbital Collision Into Earth's Surface; Velocity Verlet Integration")
     collision_time = (len(states) - 1)
