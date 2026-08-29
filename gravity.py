@@ -1,12 +1,12 @@
 from constants import EARTH_MU
-from math import sqrt
+from state import *
 
-def gravitational_acceleration(x, y):
-    """Calculate the gravitational acceleration at a given position (x, y) in meters and returns acceleration in both vectors (ax, ay) in m/s^2."""
+def gravitational_acceleration(
+    position: Vector2
+) -> Vector2:
+    """Calculate the gravitational acceleration at a given position vector in m/s^2."""
     
-    r = sqrt((x ** 2) + (y ** 2))
-    if abs(r) < 1e-10:
+    r = position.magnitude()
+    if abs(r) < (10 ** -10):
         raise ValueError("Position is too close to the center of the Earth. Gravitational acceleration is undefined.")
-    ax = -(EARTH_MU * x) / (r ** 3)
-    ay = -(EARTH_MU * y) / (r ** 3)
-    return ax, ay
+    return (position * (-EARTH_MU / (r ** 3)))

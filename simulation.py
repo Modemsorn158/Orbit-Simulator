@@ -1,23 +1,28 @@
-def simulate(x, y, vx, vy, dt, steps, integration_step, collision_check=None, collision_time_estimator=None):
-    """Simulate the motion of an object under gravity for a given number of steps using specified integration method."""
+from typing import Callable
+from state import *
+
+def simulate(
+    initial_state: BodyState,
+    dt: float,
+    steps: int,
+    integration_step: Callable[[BodyState, float], BodyState],
+    collision_check: Callable[[BodyState], bool] | None = None,
+    collision_time_estimator: Callable[[BodyState, BodyState, float], float] | None = None    
+) -> list[BodyState]:
+    """Simulate the motion of a body for a given number of steps using specified integration method."""
     
-    states = [(x, y, vx, vy)]
-    if collision_check:
-        if collision_check(x, y):
+    states: list[BodyState] = [initial_state]
+    current_state = initial_state
+    if collision_check and collision_check(current_state):
+        return states
+    for _ in range(steps):
+        next_state = integration_step(current_state, dt)
+        if collision_check and collision_check(next_state):
+            if collision_time_estimator:
+                t_colission = collision_time_estimator(current_state, next_state, dt)
+                next_state = integration_step(current_state, t_colission)
+            states.append(next_state)
             return states
-    for i in range(steps):
-        x, y, vx, vy = integration_step(x, y, vx, vy, dt)
-        if collision_check:
-            if collision_check(x, y):
-                if collision_time_estimator:
-                    last_state = states[-1]
-                    collision_time = collision_time_estimator(last_state, [x, y, vx, vy], dt)
-                    x, y, vx, vy = integration_step(last_state[0], last_state[1], last_state[2], last_state[3], collision_time)
-                states.append((x, y, vx, vy))
-                return states
-            else:
-                states.append((x, y, vx, vy))
-        else:
-            states.append((x, y, vx, vy))
-        
+        current_state = next_state
+        states.append(current_state)
     return states

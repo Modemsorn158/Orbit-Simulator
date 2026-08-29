@@ -1,32 +1,47 @@
 from gravity import gravitational_acceleration
+from state import *
 
-def forward_euler_step(x, y, vx, vy, dt):
+def forward_euler_step(
+    state: BodyState,
+    dt: float
+) -> BodyState:
     """Perform a single time step using the Forward Euler method."""
     
-    ax, ay = gravitational_acceleration(x, y)
-    x_new = x + (vx * dt)
-    y_new = y + (vy * dt)
-    vx_new = vx + (ax * dt)
-    vy_new = vy + (ay * dt)
-    return x_new, y_new, vx_new, vy_new
-
-def semi_implicit_euler_step(x, y, vx, vy, dt):
+    a = gravitational_acceleration(state.position)
+    position = state.position + (state.velocity * dt)
+    velocity = state.velocity + (a * dt)
+    return BodyState(
+        body = state.body,
+        position = position,
+        velocity = velocity
+    )
+    
+def semi_implicit_euler_step(
+    state: BodyState,
+    dt: float
+) -> BodyState:
     """Perform a single time step using the Semi-Implicit Euler method."""
     
-    ax, ay = gravitational_acceleration(x, y)
-    vx_new = vx + (ax * dt)
-    vy_new = vy + (ay * dt)
-    x_new = x + (vx_new * dt)
-    y_new = y + (vy_new * dt)
-    return x_new, y_new, vx_new, vy_new
-
-def velocity_verlet_step(x, y, vx, vy, dt):
+    a = gravitational_acceleration(state.position)
+    velocity = state.velocity + (a * dt)
+    position = state.position + (velocity * dt)
+    return BodyState(
+        body = state.body,
+        position = position,
+        velocity = velocity
+    )
+    
+def velocity_verlet_step(
+    state: BodyState,
+    dt: float
+) -> BodyState:
     """Perform a single time step using the Velocity Verlet method."""
     
-    ax, ay = gravitational_acceleration(x, y)
-    x_new = x + (vx * dt) + (0.5 * ax * (dt ** 2))
-    y_new = y + (vy * dt) + (0.5 * ay * (dt ** 2))
-    ax_new, ay_new = gravitational_acceleration(x_new, y_new)
-    vx_new = vx + (0.5 * (ax + ax_new) * dt)
-    vy_new = vy + (0.5 * (ay + ay_new) * dt)
-    return x_new, y_new, vx_new, vy_new
+    a = gravitational_acceleration(state.position)
+    position = state.position + (state.velocity * dt) + (a * (0.5 * (dt ** 2)))
+    velocity = state.velocity + ((a + gravitational_acceleration(position)) * (0.5 * dt))
+    return BodyState(
+        body = state.body,
+        position = position,
+        velocity = velocity
+    )
