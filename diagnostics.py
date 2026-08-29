@@ -1,24 +1,35 @@
-from constants import EARTH_RADIUS, EARTH_MU
+from constants import GRAVITATIONAL_CONSTANT
+from state import *
 from math import sqrt, pi
 
-def specific_orbital_energy(x, y, vx, vy):
+def specific_orbital_energy(
+    state: BodyState,
+    source: BodyState                            
+) -> float:
     """Calculate the specific orbital energy of an object in orbit."""
     
-    r = sqrt((x ** 2) + (y ** 2))
-    v2 = (vx ** 2) + (vy ** 2)
-    energy = (v2 / 2) - (EARTH_MU / r)
+    v = ((state.velocity - source.velocity).magnitude()) ** 2
+    r = (state.position - source.position).magnitude()
+    if r == 0:
+        raise ValueError("Position is at the origin of the other body; Orbital energy undefined")
+    energy = (v / 2) - ((GRAVITATIONAL_CONSTANT * source.body.mass) / r)
     return energy
 
-def specific_energy_history(states):
+def specific_energy_history(
+    states: list[BodyState],
+    source: BodyState
+) -> list[float]:
     """Calculate the specific orbital energy for a list of states."""
     
     energy_history = []
-    for x, y, vx, vy in states:
-        energy = specific_orbital_energy(x, y, vx, vy)
+    for state in states:
+        energy = specific_orbital_energy(state, source)
         energy_history.append(energy)
     return energy_history
 
-def relative_change_percent(values):
+def relative_change_percent(
+    values: list[float]
+) -> list[float]:
     """Calculate the relative change percentage of a list of values compared to the initial value."""
     
     if values[0] == 0:
@@ -27,101 +38,138 @@ def relative_change_percent(values):
     reference_size = abs(initial_value)
     return [(value - initial_value) / reference_size * 100 for value in values]
 
-def specific_angular_momentum(x, y, vx, vy):
+def specific_angular_momentum(
+    state: BodyState,
+    source: BodyState
+) -> float:
     """Calculate the specific angular momentum of an object in orbit."""
     
-    h = (x * vy) - (y * vx)
+    position = state.position - source.position
+    velocity = state.velocity - source.velocity
+    h = (position.x * velocity.y) - (position.y * velocity.x)
     return h
 
-def specific_angular_momentum_history(states):
+def specific_angular_momentum_history(
+    states: list[BodyState],
+    source: BodyState
+) -> list[float]:
     """Calculate the specific angular momentum for a list of states."""
     
     h_history = []
-    for x, y, vx, vy in states:
-        h = specific_angular_momentum(x, y, vx, vy)
+    for state in states:
+        h = specific_angular_momentum(state, source)
         h_history.append(h)
     return h_history
 
-def semi_major_axis(x, y, vx, vy):
+def semi_major_axis(
+    state: BodyState,
+    source: BodyState                    
+) -> float:
     """Calculate the semi-major axis of an orbit given position and velocity."""
     
-    energy = specific_orbital_energy(x, y, vx, vy)
+    energy = specific_orbital_energy(state, source)
     if energy >= 0:
         raise ValueError("Orbit is not bound; semi-major axis is undefined.")
-    a = -(EARTH_MU / (2 * energy))
+    a = -((GRAVITATIONAL_CONSTANT * source.body.mass) / (2 * energy))
     return a
 
-def eccentricity(x, y, vx, vy):
+def eccentricity(
+    state: BodyState,
+    source: BodyState
+):
     """Calculate the eccentricity of an orbit given position and velocity."""
     
-    energy = specific_orbital_energy(x, y, vx, vy)
-    h = specific_angular_momentum(x, y, vx, vy)
-    e0 = 1 + ((2 * energy * (h ** 2)) / (EARTH_MU ** 2))
+    energy = specific_orbital_energy(state, source)
+    h = specific_angular_momentum(state, source)
+    e0 = 1 + ((2 * energy * (h ** 2)) / ((GRAVITATIONAL_CONSTANT * source.body.mass) ** 2))
     e0 = max(e0, 0)
     e = sqrt(e0)
     return e
 
-def apsides(x, y, vx, vy):
+def apsides(
+    state: BodyState,
+    source: BodyState
+) -> tuple[float, float]:
     """Calculate the periapsis and apoapsis distances of an orbit given position and velocity."""
     
-    a = semi_major_axis(x, y, vx, vy)
-    e = eccentricity(x, y, vx, vy)
+    a = semi_major_axis(state, source)
+    e = eccentricity(state, source)
     r_periapsis = a * (1 - e)
     r_apoapsis = a * (1 + e)
     return r_periapsis, r_apoapsis
 
-def orbital_period(x, y, vx, vy):
+def orbital_period(
+    state: BodyState,
+    source: BodyState
+) -> float:
     """Calculate the orbital period of an orbit given position and velocity."""
     
-    a = semi_major_axis(x, y, vx, vy)
-    T = 2 * pi * sqrt((a ** 3) / EARTH_MU)
+    a = semi_major_axis(state, source)
+    T = 2 * pi * sqrt((a ** 3) / (GRAVITATIONAL_CONSTANT * source.body.mass))
     return T
 
-def altitude(x, y):
-    """Calculate the altitude of an object above Earth's surface given its position."""
+def altitude(
+    position: Vector2,
+    source: BodyState
+) -> float:
+    """Calculate the altitude of an object above a body's surface given its position."""
     
-    r = sqrt((x ** 2) + (y ** 2))
-    altitude = r - EARTH_RADIUS
+    r = (position - source.position).magnitude()
+    altitude = r - source.body.radius
     return altitude
 
-def speed(vx, vy):
-    """Calculate the speed of an object given its velocity components."""
+def speed(
+    velocity: Vector2,
+    source: BodyState
+) -> float:
+    """Calculate the speed of an object given its velocity relative to another object."""
     
-    v = sqrt((vx ** 2) + (vy ** 2))
+    v = (velocity - source.velocity).magnitude()
     return v
 
-def radial_velocity(x, y, vx, vy):
-    """Calculate the radial velocity of an object given its position and velocity components."""
+def radial_velocity(
+    state: BodyState,
+    source: BodyState
+) -> float:
+    """Calculate the radial velocity of an object given its position and velocity relative to another object."""
     
-    r = sqrt((x ** 2) + (y ** 2))
+    position = state.position - source.position
+    velocity = state.velocity - source.velocity
+    r = position.magnitude()
     if r == 0:
-        raise ValueError("Position is at the origin; radial velocity is undefined.")
-    vr = ((x * vx) + (y * vy)) / r
+        raise ValueError("Position is at the origin of the other body; radial velocity is undefined.")
+    vr = ((position.x * velocity.x) + (position.y * velocity.y)) / r
     return vr
 
-def find_apsis_events(states, dt):
+def find_apsis_events(
+    states: list[BodyState],
+    source: BodyState,
+    dt: float
+) -> list:
     """Find the event, time and states of periapsis and apoapsis events in a list of states."""
     
     events = []
-    current_state = states[0]
-    previous_radial_velocity = radial_velocity(current_state[0], current_state[1], current_state[2], current_state[3])
+    previous_radial_velocity = radial_velocity(states[0], source)
     for i in range(1, len(states)):
-        current_state = states[i]
-        current_radial_velocity = radial_velocity(current_state[0], current_state[1], current_state[2], current_state[3])
+        state = states[i]
+        current_radial_velocity = radial_velocity(state, source)
         if previous_radial_velocity < 0 and current_radial_velocity >= 0:
             event_time = i * dt
-            events.append(("Periapsis", event_time, current_state))
+            events.append(("Periapsis", event_time, state))
         if previous_radial_velocity > 0 and current_radial_velocity <= 0:
             event_time = i * dt
-            events.append(("Apoapsis", event_time, current_state))
+            events.append(("Apoapsis", event_time, state))
         previous_radial_velocity = current_radial_velocity
     return events
 
-def escape_velocity(x, y):
+def escape_velocity(
+    position: Vector2,
+    source: BodyState
+) -> float:
     """Calculate the escape velocity at a given position."""
     
-    r = sqrt((x ** 2) + (y ** 2))
+    r = (position - source.position).magnitude()
     if r == 0:
-        raise ValueError("Position is at the origin; escape velocity is undefined.")
-    ve = sqrt((2 * EARTH_MU) / r)
+        raise ValueError("Position is at the origin of the other body; escape velocity is undefined.")
+    ve = sqrt((2 * (GRAVITATIONAL_CONSTANT * source.body.mass)) / r)
     return ve
