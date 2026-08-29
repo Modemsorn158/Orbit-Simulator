@@ -1,13 +1,15 @@
-from gravity import gravitational_acceleration
+from typing import Callable
 from state import *
 
 def forward_euler_step(
     state: BodyState,
-    dt: float
+    dt: float,
+    acceleration_model: Callable[[Vector2, BodyState], Vector2],
+    args: list
 ) -> BodyState:
     """Perform a single time step using the Forward Euler method."""
     
-    a = gravitational_acceleration(state.position)
+    a = acceleration_model(state.position, *args)
     position = state.position + (state.velocity * dt)
     velocity = state.velocity + (a * dt)
     return BodyState(
@@ -18,11 +20,13 @@ def forward_euler_step(
     
 def semi_implicit_euler_step(
     state: BodyState,
-    dt: float
+    dt: float,
+    acceleration_model: Callable[[Vector2, BodyState], Vector2],
+    args: list
 ) -> BodyState:
     """Perform a single time step using the Semi-Implicit Euler method."""
     
-    a = gravitational_acceleration(state.position)
+    a = acceleration_model(state.position, *args)
     velocity = state.velocity + (a * dt)
     position = state.position + (velocity * dt)
     return BodyState(
@@ -33,13 +37,15 @@ def semi_implicit_euler_step(
     
 def velocity_verlet_step(
     state: BodyState,
-    dt: float
+    dt: float,
+    acceleration_model: Callable[[Vector2, BodyState], Vector2],
+    args: list
 ) -> BodyState:
     """Perform a single time step using the Velocity Verlet method."""
     
-    a = gravitational_acceleration(state.position)
+    a = acceleration_model(state.position, *args)
     position = state.position + (state.velocity * dt) + (a * (0.5 * (dt ** 2)))
-    velocity = state.velocity + ((a + gravitational_acceleration(position)) * (0.5 * dt))
+    velocity = state.velocity + ((a + acceleration_model(position, *args)) * (0.5 * dt))
     return BodyState(
         body = state.body,
         position = position,
