@@ -21,11 +21,26 @@ class Vector2:
     def __rmul__(self, scalar: float) -> "Vector2":
         return self.__mul__(scalar)
     
+    def __truediv__(self, scalar: float) -> "Vector2":
+        return Vector2(self.x / scalar, self.y / scalar)
+    
+    def normalized(self) -> "Vector2":
+        magnitude = self.magnitude()
+        if magnitude == 0:
+            raise ValueError("Cannot normalize zero vector.")
+        return (self / magnitude)
+    
 @dataclass(frozen = True)
 class Body:
     name: str
     mass: float
     radius: float
+    
+    def __post_init__(self):
+        if self.mass < 0:
+            raise ValueError("Body mass cannot be negative.")
+        if self.radius < 0:
+            raise ValueError("Body radius cannot be negative.")
     
 @dataclass(frozen = True)
 class BodyState:
@@ -35,5 +50,5 @@ class BodyState:
     
 @dataclass(frozen = True)
 class SystemState:
-    bodies: tuple[BodyState, ...]
+    states: tuple[BodyState, ...]
     time: float = 0.0
