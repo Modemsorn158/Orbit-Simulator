@@ -1,6 +1,6 @@
 import unittest
 from constants import GRAVITATIONAL_CONSTANT
-from diagnostics import specific_orbital_energy, semi_major_axis, eccentricity, apsides, escape_velocity
+from diagnostics import specific_orbital_energy, specific_angular_momentum, semi_major_axis, eccentricity, apsides, orbital_period, radial_velocity, escape_velocity
 from state import *
 from math import sqrt
 
@@ -105,3 +105,46 @@ class TestDiagnostics(unittest.TestCase):
         self.assertAlmostEqual(ve2, expected_ve2, delta=0.01)
         with self.assertRaises(ValueError):
             escape_velocity(position3, self.earth)
+            
+    # Reference body
+    def test_reference_body(self):
+        far_earth = BodyState(
+            body = Body(
+                name = "Far Earth",
+                mass = 5.972 * (10 ** 24),
+                radius = 6.371 * (10 ** 6)
+            ),
+            position = Vector2(
+                x = 10000000,
+                y = 500000
+            ),
+            velocity = Vector2(
+                x = 0,
+                y = 0
+            )
+        )
+        r = 7000000
+        vc = sqrt(self.earth_mu / r)
+        spacecraft = BodyState(
+            body = Body(
+                name = "Spacecraft",
+                mass = 0,
+                radius = 0
+            ),
+            position = far_earth.position + Vector2(
+                x = r,
+                y = 0
+            ),
+            velocity = Vector2(
+                x = 0,
+                y = vc
+            )
+        )
+        self.assertAlmostEqual(specific_orbital_energy(spacecraft, far_earth), -28470656.857142854)
+        self.assertAlmostEqual(specific_angular_momentum(spacecraft, far_earth), 52821627881.01102)
+        self.assertAlmostEqual(semi_major_axis(spacecraft, far_earth), r)
+        self.assertAlmostEqual(eccentricity(spacecraft, far_earth), 0)
+        self.assertAlmostEqual(apsides(spacecraft, far_earth)[0], r)
+        self.assertAlmostEqual(apsides(spacecraft, far_earth)[1], r)
+        self.assertAlmostEqual(orbital_period(spacecraft, far_earth), 5828.598860022619)
+        self.assertAlmostEqual(radial_velocity(spacecraft, far_earth), 0)
