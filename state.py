@@ -50,5 +50,5 @@ class BodyState:
     
 @dataclass(frozen = True)
 class SystemState:
-    states: tuple[BodyState, ...]
+    body_states: tuple[BodyState, ...]
     time: float = 0.0
