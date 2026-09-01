@@ -29,3 +29,21 @@ def simulate(
         current_state = next_state
         states.append(current_state)
     return states
+
+def simulate_system(
+    initial_system: SystemState,
+    dt: float,
+    steps: int,
+    system_integration_step: Callable[[SystemState, float, Callable[[SystemState], tuple[Vector2, ...]], list], SystemState],
+    accelerations_model: Callable[[SystemState], tuple[Vector2, ...]],
+    acceleration_args: list
+) -> list[SystemState]:
+    """Simulate the motion of a system for a given number of steps using specified integration method."""
+    
+    systems = [initial_system]
+    current_system = initial_system
+    for _ in range(steps):
+        next_system = system_integration_step(current_system, dt, accelerations_model, acceleration_args)
+        current_system = next_system
+        systems.append(current_system)
+    return systems
