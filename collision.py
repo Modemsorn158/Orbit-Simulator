@@ -1,4 +1,4 @@
-from state import BodyState
+from state import *
 
 def has_collision_with_body(
     state: BodyState,
@@ -24,3 +24,19 @@ def estimate_body_impact_time(
     if alt2 > 0:
         raise ValueError("Current altitude must be <= 0")
     return ((alt1 / (alt1 - alt2)) * dt)
+
+def system_check_collision(
+    system: SystemState
+) -> list[tuple[int, int]]:
+    """Returns all colliding objects and its pair in the system"""
+    
+    collisions = []
+    for i in range(len(system.body_states)):
+        for j in range(len(system.body_states)):
+            if i < j:
+                state1 = system.body_states[i]
+                state2 = system.body_states[j]
+                r = (state1.position - state2.position).magnitude()
+                if (r <= (state1.body.radius + state2.body.radius)):
+                    collisions.append(tuple([i, j]))
+    return collisions

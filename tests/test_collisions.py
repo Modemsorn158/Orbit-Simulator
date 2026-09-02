@@ -3,7 +3,7 @@ from diagnostics import altitude
 from gravity import gravitational_acceleration
 from simulation import simulate
 from constants import GRAVITATIONAL_CONSTANT
-from collision import has_collision_with_body, estimate_body_impact_time
+from collision import has_collision_with_body, estimate_body_impact_time, system_check_collision
 from integrators import velocity_verlet_step
 from state import *
 from math import sqrt
@@ -199,3 +199,177 @@ class TestCollisions(unittest.TestCase):
         alt2 = altitude(states2[-1].position, self.earth)
         self.assertLess(abs(alt1), 1)
         self.assertLess(alt2, 0)
+        
+    # N-body collision test: No collision
+    def test_multi_body_non(self):
+        body = Body(
+            name = "Planet",
+            mass = (10 ** 20),
+            radius = (10 ** 5)
+        )
+        planet1 = BodyState(
+            body = body,
+            position = Vector2(
+                x = 0,
+                y = 0
+            ),
+            velocity = Vector2(
+                x = 0,
+                y = 0
+            )
+        )
+        planet2 = BodyState(
+            body = body,
+            position = Vector2(
+                x = -(10 ** 10),
+                y = 0
+            ),
+            velocity = Vector2(
+                x = 0,
+                y = 0
+            )
+        )
+        planet3 = BodyState(
+            body = body,
+            position = Vector2(
+                x = (10 ** 10),
+                y = 0
+            ),
+            velocity = Vector2(
+                x = 0,
+                y = 0
+            )
+        )
+        system = SystemState(
+             body_states = (
+                 planet1, planet2, planet3
+             ),
+             time = 0
+        )
+        pairs = system_check_collision(system)
+        self.assertTrue(len(pairs) == 0)
+        
+    # N-body collision test: Exact collision
+    def test_two_body_collide(self):
+        body = Body(
+            name = "Planet",
+            mass = (10 ** 20),
+            radius = (10 ** 5)
+        )
+        planet1 = BodyState(
+            body = body,
+            position = Vector2(
+                x = -(10 ** 5),
+                y = 0
+            ),
+            velocity = Vector2(
+                x = 0,
+                y = 0
+            )
+        )
+        planet2 = BodyState(
+            body = body,
+            position = Vector2(
+                x = (10 ** 5),
+                y = 0
+            ),
+            velocity = Vector2(
+                x = 0,
+                y = 0
+            )
+        )
+        system = SystemState(
+             body_states = (
+                 planet1, planet2
+             ),
+             time = 0
+        )
+        pairs = system_check_collision(system)
+        self.assertTrue(len(pairs) == 1)
+        
+    # N-body collision test: Overlap
+    def test_overlap_collision(self):
+        body = Body(
+            name = "Planet",
+            mass = (10 ** 20),
+            radius = (10 ** 10)
+        )
+        planet1 = BodyState(
+            body = body,
+            position = Vector2(
+                x = -(10 ** 4),
+                y = 0
+            ),
+            velocity = Vector2(
+                x = 0,
+                y = 0
+            )
+        )
+        planet2 = BodyState(
+            body = body,
+            position = Vector2(
+                x = (10 ** 4),
+                y = 0
+            ),
+            velocity = Vector2(
+                x = 0,
+                y = 0
+            )
+        )
+        system = SystemState(
+             body_states = (
+                 planet1, planet2
+             ),
+             time = 0
+        )
+        pairs = system_check_collision(system)
+        self.assertTrue(len(pairs) == 1)
+        
+    # N-body collision test: Multiple collision
+    def test_multi_body_collide(self):
+        body = Body(
+            name = "Planet",
+            mass = (10 ** 20),
+            radius = (10 ** 5)
+        )
+        planet1 = BodyState(
+            body = body,
+            position = Vector2(
+                x = 0,
+                y = 0
+            ),
+            velocity = Vector2(
+                x = 0,
+                y = 0
+            )
+        )
+        planet2 = BodyState(
+            body = body,
+            position = Vector2(
+                x = -(1.1 * (10 ** 5)),
+                y = 0
+            ),
+            velocity = Vector2(
+                x = 0,
+                y = 0
+            )
+        )
+        planet3 = BodyState(
+            body = body,
+            position = Vector2(
+                x = 1.1 * (10 ** 5),
+                y = 0
+            ),
+            velocity = Vector2(
+                x = 0,
+                y = 0
+            )
+        )
+        system = SystemState(
+             body_states = (
+                 planet1, planet2, planet3
+             ),
+             time = 0
+        )
+        pairs = system_check_collision(system)
+        self.assertTrue(len(pairs) == 2)
