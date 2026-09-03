@@ -6,18 +6,18 @@ This is a project that simulates orbital physics, allowing for scenario calculat
 | Category | Features |
 | :--- | :--- |
 | **Integrators** | • Forward Euler<br>• Semi-Implicit Euler<br>• Velocity Verlet |
-| **Simulation** | • Simulate spacecraft state as a `BodyState` class based on input parameters<br>• Optional collision checking |
-| **Diagnostics** | • Calculation of orbital variables (e.g. eccentricity, semi-major axis, periapsis/apoapsis)<br>• Calculation of events (e.g. periapsis/apoapsis target time, escape velocity) |
-| **Plots** | • Plotting of orbit trajectory<br>• Plotting of specific values of interest via tables |
+| **Simulation** | • Simulate N-body orbital mechanics based on input parameters<br>• Optional collision checking |
+| **Diagnostics** | • Calculation of orbital variables (e.g. eccentricity, semi-major axis, periapsis/apoapsis)<br>• Calculation of events (e.g. periapsis/apoapsis target time, escape velocity)<br>• Calculation of system-wide variables (e.g. total linear momentum, center of mass) |
+| **Plots** | • Plotting of system trajectory<br>• Plotting of specific values of interest via tables |
 | **Tests** | • Verification of calculation functions against known correct values |
-| **Maneuvers** | • Applying impulsive velocity `ΔV` to the spacecraft |
-| **Collisions** | • Checking of the state of the spacecraft and Earth, returning either the current state being a collision or not a collision |
+| **Maneuvers** | • Applying impulsive velocity `ΔV` to a body |
+| **Collisions** | • Checking of the state of collision of the system<br>• Return calculated collision timestamp |
 ## Physics model
+- N-body (Legacy 2-body still supported)
 - Two-dimensional
 - Newtonian gravity
 - SI units
-- No atmospheric calculations
-- No multi-body calculations\
+- No atmospheric calculations\
 Example gravitational acceleration equation; Input parameters `Vector2(x, y)`:\
 $\mu = GM;\  \mu_{Earth} = 3.98589196\times 10^{14}\ m^{3}/s^{2}$\
 $r = \sqrt{x^{2}+y^{2}}$\
@@ -37,6 +37,7 @@ After a successful installation, open a terminal window in the installed folder 
 | `python main.py orbits` | Simulate and plot elliptical and hyperbolic escape orbits |
 | `python main.py maneuvers` | Examples of in-orbit maneuvering |
 | `python main.py collision` | Demonstration of collision via a descending orbit |
+| `python main.py nbody` | Examples of n-body systems |
 | `python -m unittest discover -s tests` | Test unit of diagnostic functions |
 ## Validation and results
 Note: Using Earth as reference body at origin `(0, 0)`
@@ -58,20 +59,22 @@ Trajectory plot of an impulsive prograde burn, specifically a Hohmann transfer e
 | `scenarios.py` | Function cluster of different scenarios |
 | `simulation.py` | Modular simulation function |
 | `state.py` | Dataclass library |
+| `system_diagnostics.py` | System variables calculation functions |
 | `validation.py` | Validation of energy drift for each integrators |
 | `tests/test_collisions.py` | Test unit for collisions |
 | `tests/test_diagnostics.py` | Test unit for diagnostics |
+| `tests/test_gravity.py` | Test unit for gravity |
+| `tests/test_integrators.py` | Test unit for integrators |
 | `tests/test_maneuvers.py` | Test unit for maneuvers |
+| `tests/test_state.py` | Test unit for state data classes |
+| `tests/test_system.py` | Test unit for n-body system calculations |
 ## Limitations
 - Two-dimensional
 - No atmospheric resistance
-- No multi-body simulation
 - Unrealistic ideal impulsive burns
 - Approximate collision interpolation
 - Finite timesteps, causing numerical errors
 ## Future work
-- Multi-body simulation
 - More accurate collision roots
 - Interactive control playground
 - Time acceleration
-- Real Solar System data
