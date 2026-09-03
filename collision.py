@@ -40,3 +40,24 @@ def system_check_collision(
                 if (r <= (state1.body.radius + state2.body.radius)):
                     collisions.append(tuple([i, j]))
     return collisions
+
+def estimate_system_impact_time(
+    system1: SystemState,
+    system2: SystemState,
+    pair: tuple[int, int],
+    dt: float
+) -> float:
+    """Return the estimated collision time within the timestep for a system."""
+    
+    body1_system1 = system1.body_states[pair[0]]
+    body2_system1 = system1.body_states[pair[1]]
+    body1_system2 = system2.body_states[pair[0]]
+    body2_system2 = system2.body_states[pair[1]]
+    d0 = (body1_system1.position - body2_system1.position).magnitude() - (body1_system1.body.radius + body2_system1.body.radius)
+    d1 = (body1_system2.position - body2_system2.position).magnitude() - (body1_system2.body.radius + body2_system2.body.radius)
+    if d0 <= 0:
+        raise ValueError("Previous distance must be > 0 subtracting radius")
+    if d1 > 0:
+        raise ValueError("Current distance must be <= 0 subtracting radius")
+    t = (d0 / (d0 - d1)) * dt
+    return t

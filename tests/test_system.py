@@ -4,10 +4,18 @@ from integrators import system_velocity_verlet_step
 from gravity import system_gravitational_accelerations
 from simulation import simulate_system
 from system_diagnostics import total_linear_momentum, center_of_mass, total_angular_momentum, total_mechanical_energy
+from collision import system_check_collision, estimate_system_impact_time
 from state import *
 from math import sqrt, pi
 
 class TestSystem(unittest.TestCase):
+    @staticmethod
+    def system_force_acceleration(
+        system: SystemState,
+        accelerations = list[Vector2]
+    ) -> list[Vector2]:
+        return accelerations
+    
     # Earth-Sun system simulation
     def test_earth_sun_simulation(self):
         r = (1.496 * (10 ** 11))
@@ -190,3 +198,92 @@ class TestSystem(unittest.TestCase):
         self.assertAlmostEqual(center1.y, center2.y)
         self.assertAlmostEqual(angular_epsilon, 0)
         self.assertAlmostEqual(energy_epsilon, 0)
+        
+    # Test collision
+    def test_collision(self):
+        body1 = BodyState(
+            body = Body(
+                name = "Planet1",
+                mass = 10,
+                radius = 5
+            ),
+            position = Vector2(
+                x = -10,
+                y = 0
+            ),
+            velocity = Vector2(
+                x = 1,
+                y = 0
+            )
+        )
+        body2 = BodyState(
+            body = Body(
+                name = "Planet2",
+                mass = 10,
+                radius = 5
+            ),
+            position = Vector2(
+                x = 10,
+                y = 0
+            ),
+            velocity = Vector2(
+                x = -1,
+                y = 0
+            )
+        )
+        body3 = BodyState(
+            body = Body(
+                name = "Planet3",
+                mass = 10,
+                radius = 5
+            ),
+            position = Vector2(
+                x = 0,
+                y = 15
+            ),
+            velocity = Vector2(
+                x = 0,
+                y = 1
+            )
+        )
+        body4 = BodyState(
+            body = Body(
+                name = "Planet4",
+                mass = 10,
+                radius = 5
+            ),
+            position = Vector2(
+                x = -10,
+                y = -15
+            ),
+            velocity = Vector2(
+                x = 0.5,
+                y = 0
+            )
+        )
+        body5 = BodyState(
+            body = Body(
+                name = "Planet5",
+                mass = 10,
+                radius = 5
+            ),
+            position = Vector2(
+                x = 10,
+                y = -15
+            ),
+            velocity = Vector2(
+                x = -0.5,
+                y = 0
+            )
+        )
+        system = SystemState(
+            body_states = (
+                body1, body2, body3, body4, body5
+            ),
+            time = 0
+        )
+        systems = simulate_system(system, 1, 10, system_velocity_verlet_step, self.system_force_acceleration, [[Vector2(0, 0), Vector2(0, 0), Vector2(0, 0), Vector2(0, 0), Vector2(0, 0)]], system_check_collision, estimate_system_impact_time)
+        final_system = systems[-1]
+        self.assertAlmostEqual(final_system.time, 5)
+        self.assertAlmostEqual((final_system.body_states[0].position - final_system.body_states[1].position).magnitude(), (final_system.body_states[0].body.radius + final_system.body_states[1].body.radius))
+        self.assertAlmostEqual(final_system.body_states[2].position.y, 20)

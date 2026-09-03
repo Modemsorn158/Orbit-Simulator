@@ -1,5 +1,6 @@
 from typing import Callable
 from state import *
+from math import inf
 
 def simulate(
     initial_state: BodyState,
@@ -36,14 +37,30 @@ def simulate_system(
     steps: int,
     system_integration_step: Callable[[SystemState, float, Callable[[SystemState], tuple[Vector2, ...]], list], SystemState],
     accelerations_model: Callable[[SystemState], tuple[Vector2, ...]],
-    acceleration_args: list
+    acceleration_args: list,
+    collisions_check: Callable[[SystemState], list[tuple[int, int]]] | None = None,
+    collisions_time_estimator: Callable[[SystemState, SystemState, tuple[int, int], float], float] | None = None
 ) -> list[SystemState]:
     """Simulate the motion of a system for a given number of steps using specified integration method."""
     
     systems = [initial_system]
     current_system = initial_system
+    if collisions_check and collisions_check(current_system):
+        return systems
     for _ in range(steps):
         next_system = system_integration_step(current_system, dt, accelerations_model, acceleration_args)
+        if collisions_check:
+            collisions = collisions_check(next_system)
+            if collisions:
+                if collisions_time_estimator:
+                    t = inf
+                    for pair in collisions:
+                        t_calculated = collisions_time_estimator(current_system, next_system, pair, dt)
+                        if t_calculated < t:
+                            t = t_calculated
+                    next_system = system_integration_step(current_system, t, accelerations_model, acceleration_args)                    
+                systems.append(next_system)
+                return systems
         current_system = next_system
         systems.append(current_system)
     return systems
