@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from state import BodyState
+from state import Body, BodyState, SystemState
 
 def plot_trajectory(
     dt: float,
@@ -14,6 +14,31 @@ def plot_trajectory(
     ax.plot(x_list, y_list, linestyle='-', color='b')
     body_circle = plt.Circle((source.position.x, source.position.y), source.body.radius, color='g', alpha=0.5)
     ax.add_artist(body_circle)
+    plt.title(f'{title}; dt = {dt}')
+    plt.xlabel('X Position (m)')
+    plt.ylabel('Y Position (m)')
+    plt.axis('equal')
+    plt.grid()
+    plt.show()
+    
+def plot_system_trajectory(
+    dt: float,
+    systems: list[SystemState],
+    title: str    
+):
+    """Plots the trajectory of every object in the system."""
+    
+    plot, ax = plt.subplots()
+    final_system = systems[-1]
+    for i in range(len(final_system.body_states)):
+        state = final_system.body_states[i]
+        x_list = []
+        y_list = []
+        for j in range(len(systems)):
+            x_list.append(systems[j].body_states[i].position.x)
+            y_list.append(systems[j].body_states[i].position.y)
+        ax.plot(x_list, y_list, linestyle='-')
+        ax.add_artist(plt.Circle((state.position.x, state.position.y), state.body.radius))
     plt.title(f'{title}; dt = {dt}')
     plt.xlabel('X Position (m)')
     plt.ylabel('Y Position (m)')

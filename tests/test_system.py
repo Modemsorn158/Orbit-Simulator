@@ -5,6 +5,7 @@ from gravity import system_gravitational_accelerations
 from simulation import simulate_system
 from system_diagnostics import total_linear_momentum, center_of_mass, total_angular_momentum, total_mechanical_energy
 from collision import system_check_collision, estimate_system_impact_time
+from plotter import plot_system_trajectory
 from state import *
 from math import sqrt, pi
 
@@ -109,6 +110,7 @@ class TestSystem(unittest.TestCase):
         self.assertAlmostEqual(angular_epsilon, 0)
         self.assertAlmostEqual(energy_epsilon, 0)
         
+    # 3-body triangular orbit
     def test_equal_three_body(self):
         body = Body(
             name = "Planet",
@@ -198,6 +200,7 @@ class TestSystem(unittest.TestCase):
         self.assertAlmostEqual(center1.y, center2.y)
         self.assertAlmostEqual(angular_epsilon, 0)
         self.assertAlmostEqual(energy_epsilon, 0)
+        plot_system_trajectory(dt, system_states, "Triangular 3-Body Orbit Trajectory;")
         
     # Test collision
     def test_collision(self):
