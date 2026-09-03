@@ -200,7 +200,7 @@ class TestSystem(unittest.TestCase):
         self.assertAlmostEqual(center1.y, center2.y)
         self.assertAlmostEqual(angular_epsilon, 0)
         self.assertAlmostEqual(energy_epsilon, 0)
-        plot_system_trajectory(dt, system_states, "Triangular 3-Body Orbit Trajectory;")
+        #plot_system_trajectory(dt, system_states, "Triangular 3-Body Orbit Trajectory;")
         
     # Test collision
     def test_collision(self):

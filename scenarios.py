@@ -1,12 +1,12 @@
 from constants import GRAVITATIONAL_CONSTANT
-from gravity import gravitational_acceleration
-from integrators import forward_euler_step, semi_implicit_euler_step, velocity_verlet_step
-from simulation import simulate
-from plotter import plot_trajectory, plot_integrator_comparison, plot_diagnostic_comparison, plot_table
+from gravity import gravitational_acceleration, system_gravitational_accelerations
+from integrators import forward_euler_step, semi_implicit_euler_step, velocity_verlet_step, system_velocity_verlet_step
+from simulation import simulate, simulate_system
+from plotter import plot_trajectory, plot_integrator_comparison, plot_diagnostic_comparison, plot_table, plot_system_trajectory
 from diagnostics import altitude, specific_energy_history, relative_change_percent, specific_angular_momentum_history, orbital_period, apsides, find_apsis_events, escape_velocity
 from validation import circular_orbit_max_energy_drift
 from maneuvers import apply_prograde_delta_v, hohmann_transfer
-from collision import has_collision_with_body, estimate_body_impact_time
+from collision import has_collision_with_body, estimate_body_impact_time, system_check_collision, estimate_system_impact_time
 from state import *
 from math import sqrt
 
@@ -208,3 +208,70 @@ def run_collision_example():
     alt = altitude(Vector2(position[0], position[1]), earth)
     plot_table_data = [["Collision step index", collision_step_index], ["Altitude", alt]]
     plot_table(["Key", "Value"], plot_table_data, "Sub-Orbital Collision Data")
+    
+def run_nbody_example():
+    # Figure 1, 1.1: Sun-Earth-Moon orbit system
+    au = 1.496 * (10 ** 11)
+    m_sun = 1.989 * (10 ** 30)
+    r_sun = 6.9585 * (10 ** 8)
+    m_earth = 5.972 * (10 ** 24)
+    r_earth = 6.371 * (10 ** 6)
+    m_moon = 7.34767309 * (10 ** 22)
+    r_moon = 1.7374 * (10 ** 6)
+    d_earth_moon = (3.84 * (10 ** 8))
+    d_earth = d_earth_moon * (m_moon / (m_earth + m_moon))
+    d_moon = d_earth_moon * (m_earth / (m_earth + m_moon))
+    omega_earth_moon = sqrt((GRAVITATIONAL_CONSTANT * (m_earth + m_moon)) / (d_earth_moon ** 3))
+    m_earth_moon = m_earth + m_moon
+    d_sun = au * (m_earth_moon / (m_sun + m_earth_moon))
+    d_barycenter = au * (m_sun / (m_sun + m_earth_moon))
+    omega_year = sqrt((GRAVITATIONAL_CONSTANT * (m_sun + m_earth_moon)) / (au ** 3))
+    sun = BodyState(
+        body = Body(
+            name = "Sun",
+            mass = m_sun,
+            radius = r_sun
+        ),
+        position = Vector2(
+            x = -d_sun,
+            y = 0
+        ),
+        velocity = (omega_year * Vector2(0, -d_sun)
+        )
+    )
+    earth = BodyState(
+        body = Body(
+            name = "Earth",
+            mass = m_earth,
+            radius = r_earth
+        ),
+        position = Vector2(
+            x = (d_barycenter - d_earth),
+            y = 0
+        ),
+        velocity = (omega_year * Vector2(0, d_barycenter)) - (omega_earth_moon * Vector2(0, d_earth)
+        )
+    )
+    moon = BodyState(
+        body = Body(
+            name = "Moon",
+            mass = m_moon,
+            radius = r_moon
+        ),
+        position = Vector2(
+            x = (d_barycenter + d_moon),
+            y = 0
+        ),
+        velocity = ((omega_year * Vector2(0, d_barycenter)) + (omega_earth_moon * Vector2(0, d_moon)))
+    )
+    system = SystemState(
+        body_states = (
+            sun, earth, moon
+        ),
+        time = 0
+    )
+    total_time = 365 * 24 * 60 * 60
+    steps = 10000
+    dt = total_time / steps
+    system_states = simulate_system(system, dt, steps, system_velocity_verlet_step, system_gravitational_accelerations, [])
+    plot_system_trajectory(dt, system_states, "Earth-Sun-Moon System Trajectory", 20)

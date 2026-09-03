@@ -24,7 +24,8 @@ def plot_trajectory(
 def plot_system_trajectory(
     dt: float,
     systems: list[SystemState],
-    title: str    
+    title: str,
+    body_scale: float = 1    
 ):
     """Plots the trajectory of every object in the system."""
     
@@ -38,8 +39,8 @@ def plot_system_trajectory(
             x_list.append(systems[j].body_states[i].position.x)
             y_list.append(systems[j].body_states[i].position.y)
         ax.plot(x_list, y_list, linestyle='-')
-        ax.add_artist(plt.Circle((state.position.x, state.position.y), state.body.radius))
-    plt.title(f'{title}; dt = {dt}')
+        ax.add_artist(plt.Circle((state.position.x, state.position.y), (state.body.radius * body_scale)))
+    plt.title(f'{title}; dt = {dt}; body size scale = {body_scale}')
     plt.xlabel('X Position (m)')
     plt.ylabel('Y Position (m)')
     plt.axis('equal')

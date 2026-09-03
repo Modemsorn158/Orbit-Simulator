@@ -1,4 +1,4 @@
-from scenarios import run_integrator_validation, run_orbit_examples, run_maneuver_examples, run_collision_example
+from scenarios import run_integrator_validation, run_orbit_examples, run_maneuver_examples, run_collision_example, run_nbody_example
 import sys
 
 if __name__ == "__main__":
@@ -6,7 +6,8 @@ if __name__ == "__main__":
         "integrators": run_integrator_validation,
         "orbits": run_orbit_examples,
         "maneuvers": run_maneuver_examples,
-        "collision": run_collision_example
+        "collision": run_collision_example,
+        "nbody": run_nbody_example
     }
     
     if len(sys.argv) > 1:
