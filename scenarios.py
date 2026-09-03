@@ -6,7 +6,8 @@ from plotter import plot_trajectory, plot_integrator_comparison, plot_diagnostic
 from diagnostics import altitude, specific_energy_history, relative_change_percent, specific_angular_momentum_history, orbital_period, apsides, find_apsis_events, escape_velocity
 from validation import circular_orbit_max_energy_drift
 from maneuvers import apply_prograde_delta_v, hohmann_transfer
-from collision import has_collision_with_body, estimate_body_impact_time, system_check_collision, estimate_system_impact_time
+from collision import has_collision_with_body, estimate_body_impact_time
+from presets import solar_system
 from state import *
 from math import sqrt
 
@@ -274,4 +275,12 @@ def run_nbody_example():
     steps = 10000
     dt = total_time / steps
     system_states = simulate_system(system, dt, steps, system_velocity_verlet_step, system_gravitational_accelerations, [])
-    plot_system_trajectory(dt, system_states, "Earth-Sun-Moon System Trajectory", 20)
+    plot_system_trajectory(dt, system_states, "Earth-Sun-Moon System Trajectory", 5)
+    
+    # Figure 2, 2.1, 2.2: Solar system
+    system = solar_system
+    total_time = 165 * 365 * 24 * 60 * 60
+    steps = 100000
+    dt = total_time / steps
+    system_states = simulate_system(solar_system, dt, steps, system_velocity_verlet_step, system_gravitational_accelerations, [])
+    plot_system_trajectory(dt, system_states, "Solar System Trajectory", 5)

@@ -40,6 +40,7 @@ def plot_system_trajectory(
             y_list.append(systems[j].body_states[i].position.y)
         ax.plot(x_list, y_list, linestyle='-')
         ax.add_artist(plt.Circle((state.position.x, state.position.y), (state.body.radius * body_scale)))
+        ax.text(state.position.x, state.position.y, state.body.name)
     plt.title(f'{title}; dt = {dt}; body size scale = {body_scale}')
     plt.xlabel('X Position (m)')
     plt.ylabel('Y Position (m)')
