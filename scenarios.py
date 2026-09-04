@@ -282,5 +282,8 @@ def run_nbody_example():
     total_time = 165 * 365 * 24 * 60 * 60
     steps = 100000
     dt = total_time / steps
-    system_states = simulate_system(solar_system, dt, steps, system_velocity_verlet_step, system_gravitational_accelerations, [])
+    system_states = simulate_system(solar_system, dt, steps, system_velocity_verlet_step, system_gravitational_accelerations, [], None, None, True)
     plot_system_trajectory(dt, system_states, "Solar System Trajectory", 5)
+    
+    # Figure 3, 3.1, 3.2: Earth reference, Moon-Sun only
+    plot_system_trajectory(dt, system_states, "Solar System Trajectory; Earth Reference Point; Earth-Moon-Sun", 5, 3, [0, 3, 4])

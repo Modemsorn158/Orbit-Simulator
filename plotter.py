@@ -25,22 +25,41 @@ def plot_system_trajectory(
     dt: float,
     systems: list[SystemState],
     title: str,
-    body_scale: float = 1    
+    body_scale: float = 1,
+    reference_point: int = None,
+    display_list: list[int] = None
 ):
     """Plots the trajectory of every object in the system."""
     
     plot, ax = plt.subplots()
     final_system = systems[-1]
+    if reference_point is not None:
+        reference_position = final_system.body_states[reference_point].position
     for i in range(len(final_system.body_states)):
+        if display_list:
+            if i in display_list:
+                pass
+            else:
+                continue
         state = final_system.body_states[i]
         x_list = []
         y_list = []
         for j in range(len(systems)):
-            x_list.append(systems[j].body_states[i].position.x)
-            y_list.append(systems[j].body_states[i].position.y)
+            x = systems[j].body_states[i].position.x
+            y = systems[j].body_states[i].position.y
+            if reference_point is not None:
+                reference_position_state = systems[j].body_states[reference_point].position
+                x = x - reference_position_state.x
+                y = y - reference_position_state.y
+            x_list.append(x)
+            y_list.append(y)
         ax.plot(x_list, y_list, linestyle='-')
-        ax.add_artist(plt.Circle((state.position.x, state.position.y), (state.body.radius * body_scale)))
-        ax.text(state.position.x, state.position.y, state.body.name)
+        if reference_point is not None:
+            ax.add_artist(plt.Circle((state.position.x - reference_position.x, state.position.y - reference_position.y), (state.body.radius * body_scale)))
+            ax.text(state.position.x - reference_position.x, state.position.y - reference_position.y, state.body.name)
+        else:
+            ax.add_artist(plt.Circle((state.position.x, state.position.y), (state.body.radius * body_scale)))
+            ax.text(state.position.x, state.position.y, state.body.name)
     plt.title(f'{title}; dt = {dt}; body size scale = {body_scale}')
     plt.xlabel('X Position (m)')
     plt.ylabel('Y Position (m)')

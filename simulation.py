@@ -39,7 +39,8 @@ def simulate_system(
     accelerations_model: Callable[[SystemState], tuple[Vector2, ...]],
     acceleration_args: list,
     collisions_check: Callable[[SystemState], list[tuple[int, int]]] | None = None,
-    collisions_time_estimator: Callable[[SystemState, SystemState, tuple[int, int], float], float] | None = None
+    collisions_time_estimator: Callable[[SystemState, SystemState, tuple[int, int], float], float] | None = None,
+    display_status: bool = False
 ) -> list[SystemState]:
     """Simulate the motion of a system for a given number of steps using specified integration method."""
     
@@ -47,7 +48,7 @@ def simulate_system(
     current_system = initial_system
     if collisions_check and collisions_check(current_system):
         return systems
-    for _ in range(steps):
+    for i in range(steps):
         next_system = system_integration_step(current_system, dt, accelerations_model, acceleration_args)
         if collisions_check:
             collisions = collisions_check(next_system)
@@ -63,4 +64,9 @@ def simulate_system(
                 return systems
         current_system = next_system
         systems.append(current_system)
+        if display_status:
+            print(f"\rSimulation step: {i}/{steps}...", end="", flush=True)
+    if display_status:
+        print(f"\rSimulation step: {steps}/{steps}...", end="", flush=True)
+        print("\nSimulation done.")
     return systems
