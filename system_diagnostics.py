@@ -1,3 +1,4 @@
+from typing import Callable
 from constants import GRAVITATIONAL_CONSTANT
 from state import *
 from math import sqrt, pi
@@ -182,3 +183,15 @@ def pair_period(
     a = pair_semi_major_axis(system, pair)
     mu = pair_gravitational_parameter(system, pair)
     return ((2 * pi) * sqrt((a ** 3) / mu))
+
+def pair_diagnostics_history(
+    system_history: list[SystemState],
+    pair: tuple[int, int],
+    diagnostic: Callable[[SystemState, tuple[int, int]], Vector2 | float | tuple[float, float]]
+) -> list[Vector2 | float | tuple[float, float]]:
+    """Return the history of the diagnostic value of choice for a pair in the history of a system."""
+    
+    return_list = []
+    for system in system_history:
+        return_list.append(diagnostic(system, pair))
+    return return_list
