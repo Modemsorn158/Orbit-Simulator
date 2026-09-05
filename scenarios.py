@@ -3,7 +3,8 @@ from gravity import gravitational_acceleration, system_gravitational_acceleratio
 from integrators import forward_euler_step, semi_implicit_euler_step, velocity_verlet_step, system_velocity_verlet_step
 from simulation import simulate, simulate_system
 from plotter import plot_trajectory, plot_integrator_comparison, plot_diagnostic_comparison, plot_table, plot_system_trajectory
-from diagnostics import altitude, specific_energy_history, relative_change_percent, specific_angular_momentum_history, orbital_period, apsides, find_apsis_events, escape_velocity
+from diagnostics import altitude, eccentricity, semi_major_axis, specific_energy_history, relative_change_percent, specific_angular_momentum_history, orbital_period, apsides, find_apsis_events, escape_velocity
+from system_diagnostics import pair_diagnostics_history, pair_semi_major_axis, pair_eccentricity
 from validation import circular_orbit_max_energy_drift
 from maneuvers import apply_prograde_delta_v, hohmann_transfer
 from collision import has_collision_with_body, estimate_body_impact_time
@@ -287,3 +288,12 @@ def run_nbody_example():
     
     # Figure 3, 3.1, 3.2: Earth reference, Moon-Sun only
     plot_system_trajectory(dt, system_states, "Solar System Trajectory; Earth Reference Point; Earth-Moon-Sun", 5, 3, [0, 3, 4])
+    
+    # Figure 4, 5: Earth-Moon semi-major axis and eccentricity history
+    pair = (3, 4)
+    history_a = pair_diagnostics_history(system_states, pair, pair_semi_major_axis)
+    static_a = [pair_semi_major_axis(solar_system, pair)] * len(history_a)
+    history_e = pair_diagnostics_history(system_states, pair, pair_eccentricity)
+    static_e = [pair_eccentricity(solar_system, pair)] * len(history_e)
+    plot_diagnostic_comparison(dt, history_a, static_a, "N-body semi-major-axis", "2-body semi-major axis", "Semi-Major Axis Comparison; N-Body vs 2-Body", "a")
+    plot_diagnostic_comparison(dt, history_e, static_e, "N-body eccentricity", "2-body eccentricity", "Eccentricity Comparison; N-Body vs 2-Body", "e")
