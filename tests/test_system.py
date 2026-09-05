@@ -1,9 +1,10 @@
 import unittest
 from constants import GRAVITATIONAL_CONSTANT
+from diagnostics import semi_major_axis
 from integrators import system_velocity_verlet_step
 from gravity import system_gravitational_accelerations
 from simulation import simulate_system
-from system_diagnostics import total_linear_momentum, center_of_mass, total_angular_momentum, total_mechanical_energy
+from system_diagnostics import pair_radial_velocity, pair_specific_angular_momentum, total_linear_momentum, center_of_mass, total_angular_momentum, total_mechanical_energy, pair_gravitational_parameter, pair_eccentricity, pair_semi_major_axis, pair_specific_orbital_energy, pair_period, pair_apsides, pair_speed, pair_distance
 from collision import system_check_collision, estimate_system_impact_time
 from plotter import plot_system_trajectory
 from state import *
@@ -290,3 +291,70 @@ class TestSystem(unittest.TestCase):
         self.assertAlmostEqual(final_system.time, 5)
         self.assertAlmostEqual((final_system.body_states[0].position - final_system.body_states[1].position).magnitude(), (final_system.body_states[0].body.radius + final_system.body_states[1].body.radius))
         self.assertAlmostEqual(final_system.body_states[2].position.y, 20)
+        
+    def test_diagnostics(self):
+        r = (1.496 * (10 ** 11))
+        earth_mass = (5.972 * (10 ** 24))
+        sun_mass = (1.989 * (10 ** 30))
+        r1 = r * (earth_mass / (earth_mass + sun_mass))
+        r2 = r * (sun_mass / (earth_mass + sun_mass))
+        r3 = r1 + r2
+        omega = sqrt((GRAVITATIONAL_CONSTANT * (earth_mass + sun_mass)) / (r3 ** 3))
+        v_sun = omega * r1
+        v_earth = omega * r2
+        sun = BodyState(
+            body = Body(
+                name = "Sun",
+                mass = 1.989 * (10 ** 30),
+                radius = 6.9585 * (10 ** 8)
+            ),
+            position = Vector2(
+                x = -r1,
+                y = 0
+            ),
+            velocity = Vector2(
+                x = 0,
+                y = -v_sun
+            )
+        )
+        earth = BodyState(
+            body = Body(
+                name = "Earth",
+                mass = 5.972 * (10 ** 24),
+                radius = 6.371 * (10 ** 6)
+            ),
+            position = Vector2(
+                x = r2,
+                y = 0
+            ),
+            velocity = Vector2(
+                x = 0,
+                y = v_earth
+            )
+        )
+        system = SystemState(
+            body_states = (
+                sun, earth
+            ),
+            time = 0
+        )
+        pair = (0, 1)
+        reverse_pair = (1, 0)
+        mu = pair_gravitational_parameter(system, pair)
+        periapsis, apoapsis = pair_apsides(system, pair)
+        self.assertAlmostEqual(mu, (GRAVITATIONAL_CONSTANT * (earth_mass + sun_mass)))
+        self.assertAlmostEqual(periapsis, apoapsis)
+        self.assertAlmostEqual(pair_specific_orbital_energy(system, pair), -(mu / (2 * r)))
+        self.assertAlmostEqual(pair_semi_major_axis(system, pair), r)
+        self.assertAlmostEqual(pair_eccentricity(system, pair), 0)
+        self.assertAlmostEqual(periapsis, r)
+        self.assertAlmostEqual(apoapsis, r)
+        self.assertAlmostEqual(pair_radial_velocity(system, pair), 0)
+        self.assertAlmostEqual(pair_specific_angular_momentum(system, pair), (r * pair_speed(system, pair)))
+        self.assertAlmostEqual(pair_period(system, pair), (2 * pi * sqrt((r ** 3) / mu)))
+        self.assertAlmostEqual(pair_distance(system, pair), pair_distance(system, reverse_pair))
+        self.assertAlmostEqual(pair_speed(system, pair), pair_speed(system, reverse_pair))
+        self.assertAlmostEqual(pair_specific_orbital_energy(system, pair), pair_specific_orbital_energy(system, reverse_pair))
+        self.assertAlmostEqual(pair_semi_major_axis(system, pair), pair_semi_major_axis(system, reverse_pair))
+        self.assertAlmostEqual(pair_eccentricity(system, pair), pair_eccentricity(system, reverse_pair))
+        self.assertAlmostEqual(pair_period(system, pair), pair_period(system, reverse_pair))
