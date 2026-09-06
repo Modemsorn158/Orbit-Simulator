@@ -1,7 +1,7 @@
 from typing import Callable
 from constants import GRAVITATIONAL_CONSTANT
 from state import *
-from math import sqrt, pi
+from math import radians, sqrt, pi, atan2
 
 def total_linear_momentum(
     system: SystemState
@@ -195,3 +195,45 @@ def pair_diagnostics_history(
     for system in system_history:
         return_list.append(diagnostic(system, pair))
     return return_list
+
+def pair_eccentricity_vector(
+    system: SystemState,
+    pair: tuple[int, int]
+) -> Vector2:
+    """Return the relative eccentricity vector between 2 bodies."""
+    
+    position = relative_position(system, pair)
+    distance = position.magnitude()
+    velocity = relative_velocity(system, pair)
+    speed = velocity.magnitude()
+    mu = pair_gravitational_parameter(system, pair)
+    return (((((speed ** 2) - (mu / distance)) * position) - ((position @ velocity) * velocity)) / mu)
+
+def pair_periapsis_angle(
+    system: SystemState,
+    pair: tuple[int, int]
+) -> float:
+    """Return the periapsis angle based on the eccentricity."""
+    
+    ev = pair_eccentricity_vector(system, pair)
+    if ev.magnitude() == 0:
+        raise ValueError("Eccentricity is zero: Periapsis angle undefined.")
+    return atan2(ev.y, ev.x)
+
+def unwrap_periapsis_angle(
+    angle_history: list[float]
+) -> list[float]:
+    """Return the unwrapped history of the periapsis angle."""
+    
+    new_history = [angle_history[0]]
+    offset = 0
+    for i in range(1, len(angle_history)):
+        previous = angle_history[i - 1]
+        current = angle_history[i]
+        delta = current - previous
+        if delta > pi:
+            offset = offset - (2 * pi)
+        elif delta < -pi:
+            offset = offset + (2 * pi)
+        new_history.append(current + offset)
+    return new_history

@@ -1,10 +1,9 @@
 import unittest
 from constants import GRAVITATIONAL_CONSTANT
-from diagnostics import semi_major_axis
 from integrators import system_velocity_verlet_step
 from gravity import system_gravitational_accelerations
 from simulation import simulate_system
-from system_diagnostics import pair_radial_velocity, pair_specific_angular_momentum, total_linear_momentum, center_of_mass, total_angular_momentum, total_mechanical_energy, pair_gravitational_parameter, pair_eccentricity, pair_semi_major_axis, pair_specific_orbital_energy, pair_period, pair_apsides, pair_speed, pair_distance
+from system_diagnostics import pair_radial_velocity, pair_specific_angular_momentum, total_linear_momentum, center_of_mass, total_angular_momentum, total_mechanical_energy, pair_gravitational_parameter, pair_eccentricity, pair_semi_major_axis, pair_specific_orbital_energy, pair_period, pair_apsides, pair_speed, pair_distance, pair_eccentricity_vector
 from collision import system_check_collision, estimate_system_impact_time
 from plotter import plot_system_trajectory
 from state import *
@@ -342,6 +341,7 @@ class TestSystem(unittest.TestCase):
         reverse_pair = (1, 0)
         mu = pair_gravitational_parameter(system, pair)
         periapsis, apoapsis = pair_apsides(system, pair)
+        self.assertAlmostEqual(pair_eccentricity(system, pair), pair_eccentricity_vector(system, pair).magnitude())
         self.assertAlmostEqual(mu, (GRAVITATIONAL_CONSTANT * (earth_mass + sun_mass)))
         self.assertAlmostEqual(periapsis, apoapsis)
         self.assertAlmostEqual(pair_specific_orbital_energy(system, pair), -(mu / (2 * r)))
