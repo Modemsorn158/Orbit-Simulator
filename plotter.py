@@ -115,6 +115,29 @@ def plot_diagnostic_comparison(
     plt.legend()
     plt.show()
     
+def plot_multiple_curve(
+    dts: list[float],
+    changes_list: list[list[float]],
+    labels: list[str],
+    title: str,
+    y_label: str
+):
+    """Plots multiple data points into one combined graph plot."""
+    
+    plot, ax = plt.subplots()
+    if not (len(dts) == len(changes_list) == len(labels)):
+        raise ValueError("Amount of each element must be equal to one another.")
+    for i in range(len(dts)):
+        dt = dts[i]
+        changes = changes_list[i]
+        ax.plot([i * dt for i in range(len(changes))], changes, linestyle='-', label=labels[i])
+    plt.title(title)
+    plt.xlabel('Time (s)')
+    plt.ylabel(y_label)
+    plt.grid()
+    plt.legend()
+    plt.show()
+    
 def plot_table(
     headers: list[str],
     data: list[list[str]],

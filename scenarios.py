@@ -2,15 +2,15 @@ from constants import GRAVITATIONAL_CONSTANT
 from gravity import gravitational_acceleration, system_gravitational_accelerations
 from integrators import forward_euler_step, semi_implicit_euler_step, velocity_verlet_step, system_velocity_verlet_step
 from simulation import simulate, simulate_system
-from plotter import plot_trajectory, plot_integrator_comparison, plot_diagnostic_comparison, plot_table, plot_system_trajectory
+from plotter import plot_trajectory, plot_integrator_comparison, plot_diagnostic_comparison, plot_table, plot_system_trajectory, plot_multiple_curve
 from diagnostics import altitude, specific_energy_history, relative_change_percent, specific_angular_momentum_history, orbital_period, apsides, find_apsis_events, escape_velocity
-from system_diagnostics import pair_diagnostics_history, pair_semi_major_axis, pair_eccentricity, pair_periapsis_angle, unwrap_periapsis_angle
+from system_diagnostics import pair_diagnostics_history, pair_semi_major_axis, pair_eccentricity, pair_periapsis_angle, total_angular_momentum, total_mechanical_energy, unwrap_periapsis_angle
 from validation import circular_orbit_max_energy_drift
 from maneuvers import apply_prograde_delta_v, hohmann_transfer
 from collision import has_collision_with_body, estimate_body_impact_time
 from presets import solar_system
 from state import *
-from math import sqrt
+from math import sqrt, pi, log2
 
 earth = BodyState(
     body = Body(
@@ -301,3 +301,61 @@ def run_nbody_example():
     plot_diagnostic_comparison(dt, history_a, static_a, "N-body semi-major-axis", "Initial semi-major axis", "Semi-Major Axis Comparison; N-Body vs Initial", "a")
     plot_diagnostic_comparison(dt, history_e, static_e, "N-body eccentricity", "Initial eccentricity", "Eccentricity Comparison; N-Body vs Initial", "e")
     plot_diagnostic_comparison(dt, unwrap_ap, static_ap, "N-body periapsis angle", "Initial periapsis angle", "Periapsis Angle Comparison; N-Body vs Initial", "ap")
+    
+def run_convergence_example():
+    # Figure 1, 2: Convergence table and comparison graph
+    pair = (3, 4)
+    year = 365 * 24 * 60 * 60
+    total_time = 30 * year
+    test_sets = [
+        [
+            (3 * 60 * 60)
+        ],
+        [
+            (6 * 60 * 60)
+        ],
+        [
+            (12 * 60 * 60)
+        ]
+    ]
+    for test_set in test_sets:
+        history = simulate_system(solar_system, test_set[0], int(total_time / test_set[0]), system_velocity_verlet_step, system_gravitational_accelerations, [], None, None, True)
+        initial_state = history[0]
+        final_state = history[-1]
+        history_ap = unwrap_periapsis_angle(pair_diagnostics_history(history, pair, pair_periapsis_angle))
+        average_ap = 0
+        for ap in history_ap:
+            average_ap = average_ap + ap
+        average_ap = average_ap / len(history_ap)
+        average_time = (final_state.time / 2)
+        initital_energy = total_mechanical_energy(initial_state)
+        intitial_angular_momentum = total_angular_momentum(initial_state)
+        numerator = 0
+        denominator = 0
+        for i in range(len(history)):
+            state = history[i]
+            ap = history_ap[i]
+            numerator = numerator + ((state.time - average_time) * (ap - average_ap))
+            denominator = denominator + ((state.time - average_time) ** 2)
+        m = (numerator / denominator)
+        m_deg = (m * ((180 / pi) * year))
+        period = ((2 * pi) / abs(m))
+        test_set.append(m_deg)
+        test_set.append(period)
+        test_set.append(abs(total_mechanical_energy(final_state) - initital_energy) / abs(initital_energy))
+        test_set.append(abs(total_angular_momentum(final_state) - intitial_angular_momentum) / abs(intitial_angular_momentum))
+        test_set.append(history_ap)
+    p = log2(abs(test_sets[2][1] - test_sets[1][1]) / abs(test_sets[1][1] - test_sets[0][1]))
+    table_data = [
+        [str(test_sets[2][0]), str(test_sets[2][1]), str(abs(test_sets[2][1] - test_sets[1][1])), str(test_sets[2][2]), str(test_sets[2][3]), str(test_sets[2][4])],
+        [str(test_sets[1][0]), str(test_sets[1][1]), str(abs(test_sets[1][1] - test_sets[0][1])), str(test_sets[1][2]), str(test_sets[1][3]), str(test_sets[1][4])],
+        [str(test_sets[0][0]), str(test_sets[0][1]), "-",                                    str(test_sets[0][2]), str(test_sets[0][3]), str(test_sets[0][4])],
+    ]
+    plot_table(["dt", "Precession rate", "Difference from finer run", "Period", "Energy error", "Angular momentum error"], table_data, f"Earth-Moon Precession Convergence and Conservation Error; Convergence = {p}")
+    plot_multiple_curve(
+        [test_set[0] for test_set in test_sets],
+        [test_set[5] for test_set in test_sets],
+        [f"dt = {test_set[0]}" for test_set in test_sets],
+        "Earth-Moon Periapsis Angle Comparison Graph for Multiple Timesteps",
+        "Periapsis angle"
+    )

@@ -38,13 +38,21 @@ After a successful installation, open a terminal window in the installed folder 
 | `python main.py maneuvers` | Examples of in-orbit maneuvering |
 | `python main.py collision` | Demonstration of collision via a descending orbit |
 | `python main.py nbody` | Examples of n-body systems |
+| `python main.py convergence` | Demonstration of precession convergence as Δt decreases |
 | `python -m unittest discover -s tests` | Test unit of diagnostic functions |
 ## Validation and results
+### Comparison of integrators
 Note: Using Earth as reference body at origin `(0, 0)`
 ![Integrator trajectory comparison](scenario_plots/integrator_validation_6.png)
 Results show Velocity Verlet reaches a drift of `0.0000273%` at `Δt=30` over the tested parameters, followed by Semi-Implicit Euler with `0.1046%`, and lastly Forward Euler with a `23.82%` drift.
 ![Hohmann transfer ellipse from 7,000,000m to a 10,000,000m orbit](scenario_plots/maneuver_example_2.png)
 Trajectory plot of an impulsive prograde burn, specifically a Hohmann transfer ellipse, raising apoapsis to 10,000,000 meters from 7,000,000 meters.
+### Precession convergence
+Note: Using Earth and the Moon as the target pair in a solar system running for 30 years with Δt=15, 30 and 60 minutes. Keep in mind that the Δt in `scenarios.py` are increased to 3, 6 and 12 hours for running performance.
+![Earth-Moon precession convergence and conservation table](scenario_plots/convergence_example_1.png)
+Results show that as smaller Δt are used in simulating, the measured convergence order will eventually converge to 2.
+![Earth-Moon periapsis angle comparison for multiple timesteps](scenario_plots/convergence_example_2.png)
+Comparison plot of 3 timesteps, showing that at lower Δt, cutting Δt down even more will lead to diminishing returns when considering huge amount of the increase in computation needed for a minuscule increase in accuracy.
 ## Project structure
 | Module | Purpose(s) |
 | :--- | :--- |
