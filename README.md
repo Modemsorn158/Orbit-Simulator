@@ -12,6 +12,7 @@ This is a project that simulates orbital physics, allowing for scenario calculat
 | **Tests** | • Verification of calculation functions against known correct values |
 | **Maneuvers** | • Applying impulsive velocity `ΔV` to a body |
 | **Collisions** | • Checking of the state of collision of the system<br>• Return calculated collision timestamp |
+| **Benchmark** | • Benchmarking of hardware speed in simulating systems |
 ## Physics model
 - N-body (Legacy 2-body still supported)
 - Two-dimensional
@@ -56,6 +57,7 @@ Comparison plot of 3 timesteps, showing that at lower Δt, cutting Δt down even
 ## Project structure
 | Module | Purpose(s) |
 | :--- | :--- |
+| `benchmark.py` | Benchmark system |
 | `collision.py` | Collision check functions |
 | `constants.py` | Constant definitions |
 | `diagnostics.py` | Orbital variables calculation functions |
