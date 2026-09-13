@@ -109,11 +109,15 @@ def system_velocity_verlet_step(
     system: SystemState,
     dt: float,
     accelerations_model: Callable[[SystemState], tuple[Vector2, ...]],
-    acceleration_args: list
+    acceleration_args: list,
+    cache: tuple[Vector2, ...] = None
 ) -> SystemState:
     """Perform a single time step on a system using the Velocity Verlet method."""
     
-    accelerations = accelerations_model(system, *acceleration_args)
+    if cache:
+        accelerations = cache
+    else:
+        accelerations = accelerations_model(system, *acceleration_args)
     temp_system_body = []
     for i in range(len(system.body_states)):
         a = accelerations[i]
@@ -145,4 +149,4 @@ def system_velocity_verlet_step(
     return SystemState(
         body_states = tuple(body_states),
         time = (temp_system_state.time)
-    )
+    ), new_accelerations

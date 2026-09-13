@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Any, Callable
 from state import *
 from math import e, inf
 
@@ -35,7 +35,7 @@ def simulate_system(
     initial_system: SystemState,
     dt: float,
     steps: int,
-    system_integration_step: Callable[[SystemState, float, Callable[[SystemState], tuple[Vector2, ...]], list], SystemState],
+    system_integration_step: Callable[[SystemState, float, Callable[[SystemState], tuple[Vector2, ...]], list, Any], SystemState],
     accelerations_model: Callable[[SystemState], tuple[Vector2, ...]],
     acceleration_args: list,
     collisions_check: Callable[[SystemState], list[tuple[int, int]]] | None = None,
@@ -53,8 +53,9 @@ def simulate_system(
             return systems
         else:
             return None
+    cache = None
     for i in range(steps):
-        next_system = system_integration_step(current_system, dt, accelerations_model, acceleration_args)
+        next_system, cache = system_integration_step(current_system, dt, accelerations_model, acceleration_args, cache)
         if collisions_check:
             collisions = collisions_check(next_system)
             if collisions:
@@ -65,7 +66,7 @@ def simulate_system(
                         if t_calculated < t:
                             t = t_calculated
                     if return_history:
-                        next_system = system_integration_step(current_system, t, accelerations_model, acceleration_args)                    
+                        next_system = system_integration_step(current_system, t, accelerations_model, acceleration_args, cache)                    
                 if return_history:
                     systems.append(next_system)
                     return systems
