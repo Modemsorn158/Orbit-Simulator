@@ -17,17 +17,27 @@ def system_gravitational_accelerations(
 ) -> tuple[Vector2, ...]:
     """Calculate the gravitational acceleration of a system in m/s^2."""
 
-    body_states = system.body_states
-    accelerations = [Vector2(0, 0) for _ in body_states]
-    for body_index in range(len(body_states) - 1):
-        body = body_states[body_index]
-        for target_body_index in range(body_index + 1, len(body_states)):
-            target_body = body_states[target_body_index]
-            displacement = target_body.position - body.position
-            distance = displacement.magnitude()
-            if distance < 1e-10:
-                raise ValueError("Position is too close to the center of another object. Gravitational acceleration is undefined.")
-            gravity = (displacement * GRAVITATIONAL_CONSTANT / (distance ** 3))
-            accelerations[body_index] += (gravity * target_body.body.mass)
-            accelerations[target_body_index] -= (gravity * body.body.mass)
-    return tuple(accelerations)
+    states = system.body_states
+    n = len(states)
+    ax = [0.0] * n
+    ay = [0.0] * n
+    for i in range(n - 1):
+        body_i = states[i]
+        xi = body_i.position.x
+        yi = body_i.position.y
+        mi = body_i.body.mass
+        for j in range(i + 1, n):
+            body_j = states[j]
+            dx = body_j.position.x - xi
+            dy = body_j.position.y - yi
+            r2 = dx * dx + dy * dy
+            inverted_r3 = 1.0 / (r2 * sqrt(r2))
+            scale = GRAVITATIONAL_CONSTANT * inverted_r3
+            gx = dx * scale
+            gy = dy * scale
+            mj = body_j.body.mass
+            ax[i] += gx * mj
+            ay[i] += gy * mj
+            ax[j] -= gx * mi
+            ay[j] -= gy * mi
+    return tuple(Vector2(ax[i], ay[i]) for i in range(n))

@@ -74,6 +74,7 @@ Below will be a table of changes made to optimise the code and its effect on the
 | `slots=True` in `state.py` | 2,255.80 | +2.43% | 1.02x |
 | Velocity verlet acceleration handover in `integrators.py` | 3,846.71 | +70.53% | 1.75x |
 | System gravitational acceleration calculation refactor in `gravity.py` | 5,021.45 | +30.54% | 2.28x |
+| Scalarise gravitational acceleration calculation in `gravity.py` | 11,016.55 | +119.39% | 4.00x
 ## Project structure
 | Module | Purpose(s) |
 | :--- | :--- |
