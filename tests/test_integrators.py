@@ -39,7 +39,7 @@ class TestIntegrators(unittest.TestCase):
         semi_implicit_system = system_semi_implicit_euler_step(system, dt, self.system_force_acceleration, [acceleration])
         semi_implicit_velocity = semi_implicit_system.body_states[0].velocity
         semi_implicit_position = semi_implicit_system.body_states[0].position
-        velocity_verlet_system = system_velocity_verlet_step(system, dt, self.system_force_acceleration, [acceleration])
+        velocity_verlet_system, _ = system_velocity_verlet_step(system, dt, self.system_force_acceleration, [acceleration])
         velocity_verlet_velocity = velocity_verlet_system.body_states[0].velocity
         velocity_verlet_position = velocity_verlet_system.body_states[0].position
         expected_velocity = Vector2(

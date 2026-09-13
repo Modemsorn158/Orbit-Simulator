@@ -66,14 +66,14 @@ def simulate_system(
                         if t_calculated < t:
                             t = t_calculated
                     if return_history:
-                        next_system = system_integration_step(current_system, t, accelerations_model, acceleration_args, cache)                    
+                        next_system = system_integration_step(current_system, t, accelerations_model, acceleration_args)                    
                 if return_history:
                     systems.append(next_system)
                     return systems
                 else:
                     return None
+        current_system = next_system
         if return_history:
-            current_system = next_system
             systems.append(current_system)
         if display_status:
             print(f"\rSimulation step: {i}/{steps}...", end="", flush=True)

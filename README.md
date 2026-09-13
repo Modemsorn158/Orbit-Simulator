@@ -68,11 +68,12 @@ Note: Performance benchmark values are measured with the [ASUS TUF Gaming A15 (2
     - No history recording
 
 Below will be a table of changes made to optimise the code and its effect on the performance.
-| Optimisation | Steps per second | Change in percentage from last optimisation |
-| :--- | :--- | :--- |
-| Pre-optimisation | 2,202.26 | - |
-| `slots=True` in `state.py` | 2,255.80 | +2.43% |
-| Velocity verlet acceleration handover | 3,846.71 | +70.53% |
+| Optimisation | Steps per second | Change in percentage from last optimisation | Change in factor from pre-optimisation |
+| :--- | :--- | :--- | :---- |
+| Pre-optimisation | 2,202.26 | - | - |
+| `slots=True` in `state.py` | 2,255.80 | +2.43% | 1.02x |
+| Velocity verlet acceleration handover in `integrators.py` | 3,846.71 | +70.53% | 1.75x |
+| System gravitational acceleration calculation refactor in `gravity.py` | 5,021.45 | +30.54% | 2.28x |
 ## Project structure
 | Module | Purpose(s) |
 | :--- | :--- |
