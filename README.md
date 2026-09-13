@@ -75,6 +75,7 @@ Below will be a table of changes made to optimise the code and its effect on the
 | Velocity verlet acceleration handover in `integrators.py` | 3,846.71 | +70.53% | 1.75x |
 | System gravitational acceleration calculation refactor in `gravity.py` | 5,021.45 | +30.54% | 2.28x |
 | Scalarise gravitational acceleration calculation in `gravity.py` | 11,016.55 | +119.39% | 4.00x
+| System collision check refactor in `collision.py` | 14,827.21 | +34.59% | 5.73x
 ## Project structure
 | Module | Purpose(s) |
 | :--- | :--- |

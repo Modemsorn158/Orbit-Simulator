@@ -30,15 +30,21 @@ def system_check_collision(
 ) -> list[tuple[int, int]]:
     """Returns all colliding objects and its pair in the system"""
     
+    states = system.body_states
+    n = len(states)
     collisions = []
-    for i in range(len(system.body_states)):
-        for j in range(len(system.body_states)):
-            if i < j:
-                state1 = system.body_states[i]
-                state2 = system.body_states[j]
-                r = (state1.position - state2.position).magnitude()
-                if (r <= (state1.body.radius + state2.body.radius)):
-                    collisions.append(tuple([i, j]))
+    for i in range(n - 1):
+        state_i = states[i]
+        xi = state_i.position.x
+        yi = state_i.position.y
+        ri = state_i.body.radius
+        for j in range(i + 1, n):
+            state_j = states[j]
+            dx = state_j.position.x - xi
+            dy = state_j.position.y - yi
+            radius = ri + state_j.body.radius
+            if dx * dx + dy * dy <= radius * radius:
+                collisions.append((i, j))
     return collisions
 
 def estimate_system_impact_time(
