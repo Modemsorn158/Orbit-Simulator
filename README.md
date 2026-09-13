@@ -54,6 +54,18 @@ Note: Using Earth and the Moon as the target pair in a solar system running for 
 Results show that as smaller Δt are used in simulating, the measured convergence order will eventually converge to 2.
 ![Earth-Moon periapsis angle comparison for multiple timesteps](scenario_plots/convergence_example_2.png)
 Comparison plot of 3 timesteps, showing that at lower Δt, cutting Δt down even more will lead to diminishing returns when considering huge amount of the increase in computation needed for a minuscule increase in accuracy.
+## Optimisation
+Note: Performance benchmark values are measured with the [ASUS TUF Gaming A15 (2024)](https://www.asus.com/laptops/for-gaming/tuf-gaming/asus-tuf-gaming-a15-2024/) running `benchmark.py` 5 times and taking the average.
+### Detailed benchmark device specification
+- AMD Ryzen 7-7735
+- NVIDIA GeForce RTX 4050 Laptop Edition
+- 16GB DDR5 4800MHz
+
+Below will be a table of changes made to optimise the code and its effect on the performance.
+| Optimisation | Steps per second | Change in percentage from last optimisation |
+| :--- | :--- | :--- |
+| Pre-optimisation | 2,202.26 | - |
+| `slots=True` in `state.py` | 2,255.80 | +2.43%
 ## Project structure
 | Module | Purpose(s) |
 | :--- | :--- |

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from math import sqrt
 
-@dataclass(frozen = True)
+@dataclass(frozen = True, slots=True)
 class Vector2:
     x: float
     y: float
@@ -33,7 +33,7 @@ class Vector2:
             raise ValueError("Cannot normalize zero vector.")
         return (self / magnitude)
     
-@dataclass(frozen = True)
+@dataclass(frozen = True, slots=True)
 class Body:
     name: str
     mass: float
@@ -45,13 +45,13 @@ class Body:
         if self.radius < 0:
             raise ValueError("Body radius cannot be negative.")
     
-@dataclass(frozen = True)
+@dataclass(frozen = True, slots=True)
 class BodyState:
     body: Body
     position: Vector2
     velocity: Vector2
     
-@dataclass(frozen = True)
+@dataclass(frozen = True, slots=True)
 class SystemState:
     body_states: tuple[BodyState, ...]
     time: float = 0.0

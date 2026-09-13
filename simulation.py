@@ -1,6 +1,6 @@
 from typing import Callable
 from state import *
-from math import inf
+from math import e, inf
 
 def simulate(
     initial_state: BodyState,
@@ -40,14 +40,19 @@ def simulate_system(
     acceleration_args: list,
     collisions_check: Callable[[SystemState], list[tuple[int, int]]] | None = None,
     collisions_time_estimator: Callable[[SystemState, SystemState, tuple[int, int], float], float] | None = None,
-    display_status: bool = False
-) -> list[SystemState]:
+    display_status: bool = False,
+    return_history: bool = True
+) -> list[SystemState] | None:
     """Simulate the motion of a system for a given number of steps using specified integration method."""
     
-    systems = [initial_system]
+    if return_history:
+        systems = [initial_system]
     current_system = initial_system
     if collisions_check and collisions_check(current_system):
-        return systems
+        if return_history:
+            return systems
+        else:
+            return None
     for i in range(steps):
         next_system = system_integration_step(current_system, dt, accelerations_model, acceleration_args)
         if collisions_check:
@@ -59,14 +64,22 @@ def simulate_system(
                         t_calculated = collisions_time_estimator(current_system, next_system, pair, dt)
                         if t_calculated < t:
                             t = t_calculated
-                    next_system = system_integration_step(current_system, t, accelerations_model, acceleration_args)                    
-                systems.append(next_system)
-                return systems
-        current_system = next_system
-        systems.append(current_system)
+                    if return_history:
+                        next_system = system_integration_step(current_system, t, accelerations_model, acceleration_args)                    
+                if return_history:
+                    systems.append(next_system)
+                    return systems
+                else:
+                    return None
+        if return_history:
+            current_system = next_system
+            systems.append(current_system)
         if display_status:
             print(f"\rSimulation step: {i}/{steps}...", end="", flush=True)
     if display_status:
         print(f"\rSimulation step: {steps}/{steps}...", end="", flush=True)
         print("\nSimulation done.")
-    return systems
+    if return_history:
+        return systems
+    else:
+        return None
