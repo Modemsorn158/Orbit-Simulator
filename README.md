@@ -49,7 +49,7 @@ Results show Velocity Verlet reaches a drift of `0.0000273%` at `Δt=30` over th
 ![Hohmann transfer ellipse from 7,000,000m to a 10,000,000m orbit](scenario_plots/maneuver_example_2.png)
 Trajectory plot of an impulsive prograde burn, specifically a Hohmann transfer ellipse, raising apoapsis to 10,000,000 meters from 7,000,000 meters.
 ### Precession convergence
-Note: Using Earth and the Moon as the target pair in a solar system running for 30 years with Δt=15, 30 and 60 minutes. Keep in mind that the Δt in `scenarios.py` are increased to 3, 6 and 12 hours for running performance.
+Note: Using Earth and the Moon as the target pair in a solar system running for 30 years with Δt=3, 6 and 12 minutes. Keep in mind that the Δt in `scenarios.py` are increased to 3, 6 and 12 hours for running performance.
 ![Earth-Moon precession convergence and conservation table](scenario_plots/convergence_example_1.png)
 Results show that as smaller Δt are used in simulating, the measured convergence order will eventually converge to 2.
 ![Earth-Moon periapsis angle comparison for multiple timesteps](scenario_plots/convergence_example_2.png)
@@ -74,8 +74,9 @@ Below will be a table of changes made to optimise the code and its effect on the
 | `slots=True` in `state.py` | 2,255.80 | +2.43% | 1.02x |
 | Velocity verlet acceleration handover in `integrators.py` | 3,846.71 | +70.53% | 1.75x |
 | System gravitational acceleration calculation refactor in `gravity.py` | 5,021.45 | +30.54% | 2.28x |
-| Scalarise gravitational acceleration calculation in `gravity.py` | 11,016.55 | +119.39% | 4.00x
-| System collision check refactor in `collision.py` | 14,827.21 | +34.59% | 5.73x
+| Scalarise gravitational acceleration calculation in `gravity.py` | 11,016.55 | +119.39% | 5.00x
+| System collision check refactor in `collision.py` | 14,827.21 | +34.59% | 6.73x
+| Python version update from 3.14 to 3.15 | 18,255.11 | +23.12% | 8.29x
 ## Project structure
 | Module | Purpose(s) |
 | :--- | :--- |

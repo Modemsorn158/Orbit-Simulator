@@ -1,6 +1,8 @@
+from tracemalloc import start
 from typing import Any, Callable
 from state import *
-from math import e, inf
+from math import floor, inf
+from time import time
 
 def simulate(
     initial_state: BodyState,
@@ -54,6 +56,9 @@ def simulate_system(
         else:
             return None
     cache = None
+    if display_status:
+        next_display = 1
+        start_time = time()
     for i in range(steps):
         next_system, cache = system_integration_step(current_system, dt, accelerations_model, acceleration_args, cache)
         if collisions_check:
@@ -76,9 +81,12 @@ def simulate_system(
         if return_history:
             systems.append(current_system)
         if display_status:
-            print(f"\rSimulation step: {i}/{steps}...", end="", flush=True)
+            percentage = floor(((i + 1) / steps) * 100)
+            if percentage >= next_display:
+                next_display = percentage + 1
+                print(f"\rSimulation step: {(i + 1)}/{steps}, estimated time left: {round(((time() - start_time) / (i + 1)) * (steps - (i + 1)))}s", end="")
     if display_status:
-        print(f"\rSimulation step: {steps}/{steps}...", end="", flush=True)
+        print(f"\rSimulation step: {steps}/{steps}", end="")
         print("\nSimulation done.")
     if return_history:
         return systems

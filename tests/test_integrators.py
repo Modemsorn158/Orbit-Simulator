@@ -33,10 +33,10 @@ class TestIntegrators(unittest.TestCase):
         )
         dt = 1
         acceleration = [Vector2((10 ** 4), (10 ** 2))]
-        forward_system = system_forward_euler_step(system, dt, self.system_force_acceleration, [acceleration])
+        forward_system, _ = system_forward_euler_step(system, dt, self.system_force_acceleration, [acceleration])
         forward_velocity = forward_system.body_states[0].velocity
         forward_position = forward_system.body_states[0].position
-        semi_implicit_system = system_semi_implicit_euler_step(system, dt, self.system_force_acceleration, [acceleration])
+        semi_implicit_system, _ = system_semi_implicit_euler_step(system, dt, self.system_force_acceleration, [acceleration])
         semi_implicit_velocity = semi_implicit_system.body_states[0].velocity
         semi_implicit_position = semi_implicit_system.body_states[0].position
         velocity_verlet_system, _ = system_velocity_verlet_step(system, dt, self.system_force_acceleration, [acceleration])

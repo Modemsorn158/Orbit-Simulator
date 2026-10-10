@@ -1,3 +1,4 @@
+from types import NoneType
 from typing import Callable
 from state import *
 
@@ -22,8 +23,9 @@ def system_forward_euler_step(
     system: SystemState,
     dt: float,
     accelerations_model: Callable[[SystemState], tuple[Vector2, ...]],
-    acceleration_args: list
-) -> SystemState:
+    acceleration_args: list,
+    cache: NoneType = None
+) -> tuple[SystemState, None]:
     """Perform a single time step on a system using the Forward Euler method."""
     
     accelerations = accelerations_model(system, *acceleration_args)
@@ -42,7 +44,7 @@ def system_forward_euler_step(
     return SystemState(
         body_states = tuple(body_states),
         time = (system.time + dt)
-    )
+    ), None
         
     
 def semi_implicit_euler_step(
@@ -66,8 +68,9 @@ def system_semi_implicit_euler_step(
     system: SystemState,
     dt: float,
     accelerations_model: Callable[[SystemState], tuple[Vector2, ...]],
-    acceleration_args: list
-) -> SystemState:
+    acceleration_args: list,
+    cache: NoneType = None
+) -> tuple[SystemState, None]:
     """Perform a single time step on a system using the Semi-Implicit Euler method."""
     
     accelerations = accelerations_model(system, *acceleration_args)
@@ -86,7 +89,7 @@ def system_semi_implicit_euler_step(
     return SystemState(
         body_states = tuple(body_states),
         time = (system.time + dt)
-    )
+    ), None
     
 def velocity_verlet_step(
     state: BodyState,
@@ -111,7 +114,7 @@ def system_velocity_verlet_step(
     accelerations_model: Callable[[SystemState], tuple[Vector2, ...]],
     acceleration_args: list,
     cache: tuple[Vector2, ...] = None
-) -> SystemState:
+) -> tuple[SystemState, tuple[Vector2, ...]]:
     """Perform a single time step on a system using the Velocity Verlet method."""
     
     if cache:

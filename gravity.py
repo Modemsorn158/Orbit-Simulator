@@ -31,6 +31,8 @@ def system_gravitational_accelerations(
             dx = body_j.position.x - xi
             dy = body_j.position.y - yi
             r2 = dx * dx + dy * dy
+            if r2 == 0:
+                raise ValueError("2 Bodies are located at the same coordinates. Gravitational acceleration is undefined.")
             inverted_r3 = 1.0 / (r2 * sqrt(r2))
             scale = GRAVITATIONAL_CONSTANT * inverted_r3
             gx = dx * scale

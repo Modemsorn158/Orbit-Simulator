@@ -319,7 +319,7 @@ def run_convergence_example():
         ]
     ]
     for test_set in test_sets:
-        history = simulate_system(solar_system, test_set[0], int(total_time / test_set[0]), system_velocity_verlet_step, system_gravitational_accelerations, [], None, None, True)
+        history = simulate_system(solar_system, test_set[0], int(total_time / test_set[0]), system_velocity_verlet_step, system_gravitational_accelerations, [], None, None, False)
         initial_state = history[0]
         final_state = history[-1]
         history_ap = unwrap_periapsis_angle(pair_diagnostics_history(history, pair, pair_periapsis_angle))
