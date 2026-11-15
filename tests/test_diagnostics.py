@@ -1,6 +1,6 @@
 import unittest
 from constants import GRAVITATIONAL_CONSTANT
-from diagnostics import specific_orbital_energy, specific_angular_momentum, semi_major_axis, eccentricity, apsides, orbital_period, radial_velocity, escape_velocity
+from diagnostics import find_apsis_events, specific_orbital_energy, specific_angular_momentum, semi_major_axis, eccentricity, apsides, orbital_period, radial_velocity, escape_velocity
 from state import *
 from math import sqrt
 
@@ -148,3 +148,43 @@ class TestDiagnostics(unittest.TestCase):
         self.assertAlmostEqual(apsides(spacecraft, far_earth)[1], r)
         self.assertAlmostEqual(orbital_period(spacecraft, far_earth), 5828.598860022619)
         self.assertAlmostEqual(radial_velocity(spacecraft, far_earth), 0)
+    
+    # Apsis event time
+    def test_periapsis_event_interpolation(self):
+        state1 = BodyState(
+            body = self.spacecraft_body,
+            position = Vector2(7000000.25, 0),
+            velocity = Vector2(-1, 0)
+        )
+        state2 = BodyState(
+            body = self.spacecraft_body,
+            position = Vector2(7000000.25, 0),
+            velocity = Vector2(1, 0)
+        )
+        state3 = BodyState(
+            body = self.spacecraft_body,
+            position = Vector2(7000000.25, 0),
+            velocity = Vector2(1, 0)
+        )
+        state4 = BodyState(
+            body = self.spacecraft_body,
+            position = Vector2(7000000.25, 0),
+            velocity = Vector2(-1, 0)
+        )
+        events_periapsis = find_apsis_events(
+            [state1, state2],
+            self.earth,
+            1
+        )
+        events_apoapsis = find_apsis_events(
+            [state3, state4],
+            self.earth,
+            1
+        )
+
+        self.assertEqual(len(events_periapsis), 1)
+        self.assertEqual(len(events_apoapsis), 1)
+        self.assertEqual(events_periapsis[0][0], "Periapsis")
+        self.assertEqual(events_apoapsis[0][0], "Apoapsis")
+        self.assertAlmostEqual(events_periapsis[0][1], 0.5)
+        self.assertAlmostEqual(events_apoapsis[0][1], 0.5)

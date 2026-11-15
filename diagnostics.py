@@ -146,7 +146,7 @@ def find_apsis_events(
     source: BodyState,
     dt: float
 ) -> list:
-    """Find the event, time and states of periapsis and apoapsis events in a list of states."""
+    """Find the event, time and states of periapsis and apoapsis events in a list of states. Note that the state returned is the calculated dt endpoint, not event time."""
     
     events = []
     previous_radial_velocity = radial_velocity(states[0], source)
@@ -154,10 +154,10 @@ def find_apsis_events(
         state = states[i]
         current_radial_velocity = radial_velocity(state, source)
         if previous_radial_velocity < 0 and current_radial_velocity >= 0:
-            event_time = i * dt
+            event_time = dt * ((i - 1) + ((-previous_radial_velocity / (current_radial_velocity - previous_radial_velocity))))
             events.append(("Periapsis", event_time, state))
         if previous_radial_velocity > 0 and current_radial_velocity <= 0:
-            event_time = i * dt
+            event_time = dt * ((i - 1) + ((-previous_radial_velocity / (current_radial_velocity - previous_radial_velocity))))
             events.append(("Apoapsis", event_time, state))
         previous_radial_velocity = current_radial_velocity
     return events
